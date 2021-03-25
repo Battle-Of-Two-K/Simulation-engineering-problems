@@ -1,4 +1,6 @@
 from tkinter import *
+from tkinter import filedialog
+import tkinter.messagebox as mb
 # from tkinter import ttk
 import json
 
@@ -11,7 +13,7 @@ class App:
     }
 
     settings_window_opts = {
-        'width': 620,
+        'width': 520,
         'height': 720
     }
 
@@ -29,10 +31,8 @@ class App:
         self.canvas = Canvas(self.root, **self.canvas_opts)
         self.canvas.pack(side='left')
 
-        self.settings_window = Canvas(self.root, **self.settings_window_opts)
+        self.settings_window = Frame(self.root, **self.settings_window_opts)
         self.settings_window.pack(side='right')
-
-        self.color_frames = Frame(self.root)
 
         # Кнопки
         self.btn = Button(self.settings_window, text='Посчитать', **self.button_opts)
@@ -40,38 +40,41 @@ class App:
                        y=720 - 720 / 10)
 
         # Галочки
-        self.check = Checkbutton(self.settings_window, text='Текст', font=("Courier", 14, "italic"))
-        self.check.place(x=10, y=400)
+        # self.check = Checkbutton(self.settings_window, text='Текст', font=("Courier", 14, "italic"))
+        # self.check.place(x=10, y=400)
 
         # Текст
-        self.settings_window.create_text(self.settings_window_opts['width'] // 2, 30,
-                                         text='Задача №2. Вариант 59', font=("Times New Roman", 14, "bold"))
+        self.label = Label(self.settings_window, text='Hello')
+        # self.label.pack(padx=100, pady=20, side='left')
+
+        Label(self.settings_window, text='Задача №2. Вариант 59', font=("Courier", 18, "bold")).place(x=0, y=0)
 
         # self.settings_window.create_text(160, 60, text='Входные данные:', font=("Courier", 16, "italic"))
 
         i = 100
         for key, value in self.data.items():
-            print(f"{key}:")
-            self.settings_window.create_text(self.settings_window_opts['width'] // 2, i,
-                                             text=f'{key}:', font=("Courier", 14, "italic"))
+            Label(self.settings_window, text=f'{key}:', font=("Courier", 14, "italic")).place(x=0, y=i)
             i += 30
 
             if isinstance(value, dict):
                 for inside_key, inside_value in value.items():
-                    self.settings_window.create_text(self.settings_window_opts['width'] // 2, i,
-                                                     text=f"    {inside_key}: {inside_value}",
-                                                     font=("Courier", 16, "italic"))
+                    Label(self.settings_window, text=f"    {inside_key}: {inside_value}",
+                          font=("Courier", 14, "italic")).place(x=0, y=i)
+
                     i += 20
 
             elif isinstance(value, list):
+                j = 0
                 for step in value:
-                    self.check = Checkbutton(self.settings_window, text=f"{step}", font=("Courier", 14, "italic"))
+                    var = IntVar()
+                    self.check = Radiobutton(self.settings_window, text=f"{step}", variable=var, value=j,
+                                             font=("Courier", 14, "italic"))
                     self.check.place(x=10, y=i)
                     i += 30
+                    j += 1
             else:
-                self.settings_window.create_text(self.settings_window_opts['width'] // 2,
-                                                 i, text=f"    {key}: {value}\n",
-                                                 font=("Courier", 16, "italic"))
+                Label(self.settings_window, text=f"    {key}: {value}\n",
+                      font=("Courier", 14, "italic")).place(x=0, y=i)
                 i += 20
 
         self.decor()
@@ -80,7 +83,9 @@ class App:
         """
         Метод считывает данные из файла 'Input_data.json'
         """
-        with open('Input_data.json', encoding="utf-8") as file:
+        msg = "Выберете файл с данными"
+        mb.showinfo("Информация", msg)
+        with open(filedialog.askopenfilename(), encoding="utf-8") as file:
             self.data = json.loads(file.read())
 
     def decor(self):
