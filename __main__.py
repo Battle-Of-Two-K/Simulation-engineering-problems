@@ -34,7 +34,7 @@ class App:
     def __init__(self):
         self.root = Tk()
         self.root.title('Лабораторная работа')
-        self.root.resizable(width=False, height=False)
+        self.root.resizable(width=False, height=False)  # запрет на изменение размеров виджета
 
         self.canvas = Canvas(self.root, **self.canvas_opts)
         self.canvas.pack(side='left')
@@ -46,15 +46,13 @@ class App:
 
         self.read_data_json_file()
 
-        # Текст
-        self.label = Label(self.settings_window, text='Hello')
-
-        # self.print_screen()
-        self.new_method_screen()
-
+        self.information_canvas()
         # self.decor()
 
-    def new_method_screen(self):
+    def information_canvas(self):
+        """
+        Вывод информации о задаче + вывод кнопок на полотно
+        """
         height, factor = 50, 35
 
         Label(self.settings_window, text='Задача №2. Вариант 59',
@@ -99,6 +97,7 @@ class App:
               font=("Georgia", 13, "italic")).place(x=20, y=height + 3.3 * factor)
 
     def title(self):
+        # TODO: проверка работоспособности кнопки
         print('Hello')
 
     def chart(self):
@@ -143,7 +142,10 @@ class App:
 
     def read_data_json_file(self):
         """
-        Метод считывает данные из файла 'Input_data.json'
+        Читать данные файла.
+        Данный метод ищет файл <Input_data.json> в той же директории где
+        лежит файл программы и если не находит, то право на выбор нужного
+        файла предоставляется пользователю.
         """
         if find('Input_data.json'):
             with open('Input_data.json', encoding="utf-8") as file:
@@ -152,7 +154,10 @@ class App:
             with open(filedialog.askopenfilename(), encoding="utf-8") as file:
                 self.data = json.loads(file.read())
 
-    def decor(self):
+    def information_console(self):
+        """
+        Оформление данных задачи в консоли.
+        """
         task_text = "Горизонтальный реальный пружинный маятник, " \
                     "закреплённый двумя пружинами. Тело - куб."
 
