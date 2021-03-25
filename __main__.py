@@ -1,8 +1,11 @@
-from tkinter import *
 from tkinter import filedialog
-import tkinter.messagebox as mb
-# from tkinter import ttk
+from tkinter import *
 import json
+import os
+
+
+def find(name):
+    return os.path.exists(name)
 
 
 class App:
@@ -13,80 +16,141 @@ class App:
     }
 
     settings_window_opts = {
-        'width': 520,
+        'width': 470,
         'height': 720
     }
 
-    button_opts = {
-        'font': ("Courier", 16, "italic")
+    border_effects = {
+        "flat": FLAT,
+        "sunken": SUNKEN,
+        "raised": RAISED,
+        "groove": GROOVE,
+        "ridge": RIDGE,
     }
 
     data = {}
+    buttons = []
 
     def __init__(self):
-        self.read_data_json_file()
         self.root = Tk()
         self.root.title('Лабораторная работа')
+        self.root.resizable(width=False, height=False)
 
         self.canvas = Canvas(self.root, **self.canvas_opts)
         self.canvas.pack(side='left')
 
+        self.chart()
+
         self.settings_window = Frame(self.root, **self.settings_window_opts)
         self.settings_window.pack(side='right')
 
-        # Кнопки
-        self.btn = Button(self.settings_window, text='Посчитать', **self.button_opts)
-        self.btn.place(x=self.settings_window_opts['width'] // 2,
-                       y=720 - 720 / 10)
-
-        # Галочки
-        # self.check = Checkbutton(self.settings_window, text='Текст', font=("Courier", 14, "italic"))
-        # self.check.place(x=10, y=400)
+        self.read_data_json_file()
 
         # Текст
         self.label = Label(self.settings_window, text='Hello')
-        # self.label.pack(padx=100, pady=20, side='left')
 
-        Label(self.settings_window, text='Задача №2. Вариант 59', font=("Courier", 18, "bold")).place(x=0, y=0)
+        # self.print_screen()
+        self.new_method_screen()
 
-        # self.settings_window.create_text(160, 60, text='Входные данные:', font=("Courier", 16, "italic"))
+        # self.decor()
 
-        i = 100
+    def new_method_screen(self):
+        height, factor = 50, 35
+
+        Label(self.settings_window, text='Задача №2. Вариант 59',
+              font=("Courier", 18, "bold")).place(x=0, y=0)
+
+        # Первый блок данных
+        Label(self.settings_window, text="1.Входные данные:",
+              font=("Courier", 14, "bold")).place(x=0, y=height)
+
+        for key, value in self.data["Входные данные"].items():
+            Label(self.settings_window, text=f'  {key}: {value}',
+                  font=("Courier", 14, "italic")).place(x=0, y=height + factor)
+            height += factor
+
+        # Второй блок данных
+        Label(self.settings_window, text="2.Дополнительные условия:",
+              font=("Courier", 14, "bold")).place(x=0, y=height + factor)
+
+        for key, value in self.data["Дополнительные условия"].items():
+            Label(self.settings_window, text=f'  {key}: {value}',
+                  font=("Courier", 14, "italic")).place(x=0, y=height + 2 * factor)
+            height += factor
+
+        # Третий блок данных
+        Label(self.settings_window, text="3.Выберете один из вариантов расчёта:",
+              font=("Courier", 14, "bold")).place(x=0, y=height + 2 * factor)
+
+        i = 0
+        for value in self.data["Особые условия"]:
+            checkbutton = Button(self.settings_window, text=f'{value}'.center(40),
+                                 font=("Courier", 14, "italic"), relief=GROOVE)
+            self.buttons.append(checkbutton)
+            checkbutton.place(x=5, y=height + 3 * factor)
+            i += 1
+            height += 50
+
+        self.buttons[0]['command'] = self.title
+
+        # Подпись
+        Label(self.settings_window,
+              text="Подготовил: Коновалов Ф.Д., группа: М1О-302С-18",
+              font=("Georgia", 13, "italic")).place(x=20, y=height + 3.3 * factor)
+
+    def title(self):
+        print('Hello')
+
+    def chart(self):
+        self.canvas.create_line(0, self.canvas_opts['height'] // 2,
+                                self.canvas_opts['width'], self.canvas_opts['height'] // 2,
+                                fill='white', arrow=LAST, arrowshape=(10, 20, 5))
+
+        self.canvas.create_line(self.canvas_opts['width'] // 2, self.canvas_opts['height'],
+                                self.canvas_opts['width'] // 2, 0,
+                                fill='white', arrow=LAST, arrowshape=(10, 20, 5))
+
+    def print_screen(self):
+        # TODO: Попытка сделать универсальный метод для считывания файла.json.
+        # TODO: На данный же момент присутствует зависимость от положения данных
+        # TODO: в файле + данные в файле могу быть различных типов...
+
+        height = 50
+        factor = 20
         for key, value in self.data.items():
-            Label(self.settings_window, text=f'{key}:', font=("Courier", 14, "italic")).place(x=0, y=i)
-            i += 30
+            Label(self.settings_window, text=f'{key}:', font=("Courier", 14, "italic")).place(x=0, y=height)
+            height += factor
 
             if isinstance(value, dict):
                 for inside_key, inside_value in value.items():
+                    height += 10
                     Label(self.settings_window, text=f"    {inside_key}: {inside_value}",
-                          font=("Courier", 14, "italic")).place(x=0, y=i)
+                          font=("Courier", 14, "italic")).place(x=0, y=height)
 
-                    i += 20
+                    height += factor
 
             elif isinstance(value, list):
-                j = 0
                 for step in value:
+                    height += 10
                     var = IntVar()
-                    self.check = Radiobutton(self.settings_window, text=f"{step}", variable=var, value=j,
-                                             font=("Courier", 14, "italic"))
-                    self.check.place(x=10, y=i)
-                    i += 30
-                    j += 1
+                    self.check = Checkbutton(self.settings_window, text=f"{step}", font=("Courier", 14, "italic"))
+                    self.check.place(x=10, y=height)
+                    height += factor
             else:
                 Label(self.settings_window, text=f"    {key}: {value}\n",
-                      font=("Courier", 14, "italic")).place(x=0, y=i)
-                i += 20
-
-        self.decor()
+                      font=("Courier", 14, "italic")).place(x=0, y=height)
+                height += factor
 
     def read_data_json_file(self):
         """
         Метод считывает данные из файла 'Input_data.json'
         """
-        msg = "Выберете файл с данными"
-        mb.showinfo("Информация", msg)
-        with open(filedialog.askopenfilename(), encoding="utf-8") as file:
-            self.data = json.loads(file.read())
+        if find('Input_data.json'):
+            with open('Input_data.json', encoding="utf-8") as file:
+                self.data = json.loads(file.read())
+        else:
+            with open(filedialog.askopenfilename(), encoding="utf-8") as file:
+                self.data = json.loads(file.read())
 
     def decor(self):
         task_text = "Горизонтальный реальный пружинный маятник, " \
