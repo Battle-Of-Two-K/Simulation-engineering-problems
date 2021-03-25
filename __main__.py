@@ -11,7 +11,7 @@ class App:
     }
 
     settings_window_opts = {
-        'width': 320,
+        'width': 620,
         'height': 720
     }
 
@@ -24,27 +24,57 @@ class App:
     def __init__(self):
         self.read_data_json_file()
         self.root = Tk()
+        self.root.title('Лабораторная работа')
+
         self.canvas = Canvas(self.root, **self.canvas_opts)
         self.canvas.pack(side='left')
 
-        self.settings_window = Frame(self.root, **self.settings_window_opts)
+        self.settings_window = Canvas(self.root, **self.settings_window_opts)
         self.settings_window.pack(side='right')
 
+        self.color_frames = Frame(self.root)
+
+        # Кнопки
         self.btn = Button(self.settings_window, text='Посчитать', **self.button_opts)
         self.btn.place(x=self.settings_window_opts['width'] // 2,
                        y=720 - 720 / 10)
 
-        # self.settings_window.
-
-        # textExample = Text(self.settings_window, height=10)
-        # textExample.pack()
-
-        print(self.btn['width'])
-
-        self.check = Checkbutton(self.settings_window, text='Текст', font=("Courier", 16, "italic"))
+        # Галочки
+        self.check = Checkbutton(self.settings_window, text='Текст', font=("Courier", 14, "italic"))
         self.check.place(x=10, y=400)
 
-        # self.decor()
+        # Текст
+        self.settings_window.create_text(self.settings_window_opts['width'] // 2, 30,
+                                         text='Задача №2. Вариант 59', font=("Times New Roman", 14, "bold"))
+
+        # self.settings_window.create_text(160, 60, text='Входные данные:', font=("Courier", 16, "italic"))
+
+        i = 100
+        for key, value in self.data.items():
+            print(f"{key}:")
+            self.settings_window.create_text(self.settings_window_opts['width'] // 2, i,
+                                             text=f'{key}:', font=("Courier", 14, "italic"))
+            i += 30
+
+            if isinstance(value, dict):
+                for inside_key, inside_value in value.items():
+                    self.settings_window.create_text(self.settings_window_opts['width'] // 2, i,
+                                                     text=f"    {inside_key}: {inside_value}",
+                                                     font=("Courier", 16, "italic"))
+                    i += 20
+
+            elif isinstance(value, list):
+                for step in value:
+                    self.check = Checkbutton(self.settings_window, text=f"{step}", font=("Courier", 14, "italic"))
+                    self.check.place(x=10, y=i)
+                    i += 30
+            else:
+                self.settings_window.create_text(self.settings_window_opts['width'] // 2,
+                                                 i, text=f"    {key}: {value}\n",
+                                                 font=("Courier", 16, "italic"))
+                i += 20
+
+        self.decor()
 
     def read_data_json_file(self):
         """
