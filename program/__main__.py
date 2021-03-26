@@ -164,7 +164,8 @@ class App:
             with open('Input_data.json', encoding="utf-8") as file:
                 self.data = json.loads(file.read())
         else:
-            with open(filedialog.askopenfilename(), encoding="utf-8") as file:
+            with open(filedialog.askopenfilename(title="Откройте файл с данными (формат: .json)"),
+                      encoding="utf-8") as file:
                 self.data = json.loads(file.read())
 
     def information_console(self):
