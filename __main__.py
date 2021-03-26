@@ -33,7 +33,7 @@ class App:
 
     def __init__(self):
         self.root = Tk()
-        self.root.title('Лабораторная работа')
+        self.root.title('Моделирование инженерных задач. Лабораторная работа')
         self.root.resizable(width=False, height=False)  # запрет на изменение размеров виджета
 
         self.canvas = Canvas(self.root, **self.canvas_opts)
@@ -89,12 +89,25 @@ class App:
             i += 1
             height += 50
 
+        # Кнопки
         self.buttons[0]['command'] = self.title
+        exit_btn = Button(self.settings_window, text=f'Выход',
+                          font=("Courier", 12, "italic"), command=self.button_close_program)
+        exit_btn.place(x=4 * factor, y=height + 3 * factor)
 
-        # Подпись
-        Label(self.settings_window,
-              text="Подготовил: Коновалов Ф.Д., группа: М1О-302С-18",
-              font=("Georgia", 13, "italic")).place(x=20, y=height + 3.3 * factor)
+        exit_btn = Button(self.settings_window, text=f'Сбросить',
+                          font=("Courier", 12, "italic"), command=self.discard)
+        exit_btn.place(x=7 * factor, y=height + 3 * factor)
+
+    def button_close_program(self):
+        self.root.destroy()
+
+    def discard(self):
+        """
+        Сброс расчёта. Начальное состояние программы.
+        """
+        self.canvas.delete("all")
+        self.chart()
 
     def title(self):
         # TODO: проверка работоспособности кнопки
