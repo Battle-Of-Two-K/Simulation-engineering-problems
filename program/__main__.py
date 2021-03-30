@@ -1,5 +1,6 @@
 from tkinter import filedialog
 from tkinter import *
+from sympy import *
 import json
 import os
 
@@ -17,7 +18,7 @@ class App:
 
     settings_window_opts = {
         'width': 470,
-        'height': 720
+        'height': 720,
     }
 
     border_effects = {
@@ -32,6 +33,7 @@ class App:
     buttons = []
 
     def __init__(self):
+        self.equation_for_normal_conditions()
         self.root = Tk()
         self.root.title('Моделирование инженерных задач. Лабораторная работа')
         self.root.resizable(width=False, height=False)  # запрет на изменение размеров виджета
@@ -46,14 +48,32 @@ class App:
 
         self.read_data_json_file()
 
+        self.deviation = self.data["Входные данные"]["Отклонение"]
+        self.cube_size = self.data["Входные данные"]["Размер куба"]
+        self.spring_diameter = self.data["Входные данные"]["Диаметр пружины"]
+        self.spring_coil_pitch = self.data["Входные данные"]["Шаг витков пружины"]
+        self.wire_diameter = self.data["Входные данные"]["Диаметр пружины"]
+        self.spring_length = self.data["Дополнительные условия"]["Длина пружин"]
+        self.shear_modulus = 10  # модуль сдвига
+
         self.information_canvas()
-        # self.decor()
+        # self.information_console()
+        # print(self.calc_coefficient_spring_stiffness())
+
+    def calc_coefficient_spring_stiffness(self):
+        """
+        Расчёт коэффициента упругости (жёсткости) пружины.
+
+        Returns: коэффициент упругости (жёсткости) пружины
+        """
+        number_turns_spring = self.spring_length // self.spring_coil_pitch + 1  # кол-во витков
+        return (self.shear_modulus * self.wire_diameter ** 4) / (8 * number_turns_spring * self.spring_diameter ** 3)
 
     def information_canvas(self):
         """
         Вывод информации о задаче + вывод кнопок на полотно
         """
-        height, factor = 50, 35
+        height, delta = 50, 30
 
         Label(self.settings_window, text='Задача №2. Вариант 59',
               font=("Courier", 18, "bold")).place(x=0, y=0)
@@ -63,44 +83,50 @@ class App:
               font=("Courier", 14, "bold")).place(x=0, y=height)
 
         for key, value in self.data["Входные данные"].items():
-            Label(self.settings_window, text=f'  {key}: {value}',
-                  font=("Courier", 14, "italic")).place(x=0, y=height + factor)
-            height += factor
+            Label(self.settings_window, text=f'  {key}: {value} мм',
+                  font=("Courier", 14, "italic")).place(x=0, y=height + delta)
+            height += delta
 
         # Второй блок данных
         Label(self.settings_window, text="2.Дополнительные условия:",
-              font=("Courier", 14, "bold")).place(x=0, y=height + factor)
+              font=("Courier", 14, "bold")).place(x=0, y=height + delta)
 
         for key, value in self.data["Дополнительные условия"].items():
             Label(self.settings_window, text=f'  {key}: {value}',
-                  font=("Courier", 14, "italic")).place(x=0, y=height + 2 * factor)
-            height += factor
+                  font=("Courier", 14, "italic")).place(x=0, y=height + 2 * delta)
+            height += delta
 
         # Третий блок данных
         Label(self.settings_window, text="3.Выберете один из вариантов расчёта:",
-              font=("Courier", 14, "bold")).place(x=0, y=height + 2 * factor)
+              font=("Courier", 14, "bold")).place(x=0, y=height + 2 * delta)
 
         i = 0
         for value in self.data["Особые условия"]:
             checkbutton = Button(self.settings_window, text=f'{value}'.center(40),
                                  font=("Courier", 14, "italic"), relief=GROOVE)
             self.buttons.append(checkbutton)
-            checkbutton.place(x=5, y=height + 3 * factor)
+            checkbutton.place(x=5, y=height + 3 * delta)
             i += 1
             height += 50
 
         # Кнопки
-        self.buttons[0]['command'] = self.title
+        self.buttons[0]['command'] = self.button_reaction
         exit_btn = Button(self.settings_window, text=f'Выход',
                           font=("Courier", 12, "italic"), command=self.button_close_program)
-        exit_btn.place(x=4 * factor, y=height + 3 * factor)
+        exit_btn.place(x=4 * delta, y=height + 3 * delta)
 
         exit_btn = Button(self.settings_window, text=f'Сбросить',
                           font=("Courier", 12, "italic"), command=self.discard)
-        exit_btn.place(x=7 * factor, y=height + 3 * factor)
+        exit_btn.place(x=7 * delta, y=height + 3 * delta)
 
     def button_close_program(self):
         self.root.destroy()
+
+    def equation_for_normal_conditions(self):
+        t = Symbol('t')
+        x = Function('x')
+        func = Eq(x(t).diff(t, t), -2*x(t)-3), x(t)
+        pprint(func)
 
     def discard(self):
         """
@@ -109,7 +135,7 @@ class App:
         self.canvas.delete("all")
         self.chart()
 
-    def title(self):
+    def button_reaction(self):
         # TODO: проверка работоспособности кнопки
         print('Hello')
 
@@ -121,37 +147,6 @@ class App:
         self.canvas.create_line(self.canvas_opts['width'] // 2, self.canvas_opts['height'],
                                 self.canvas_opts['width'] // 2, 0,
                                 fill='white', arrow=LAST, arrowshape=(10, 20, 5))
-
-    def print_screen(self):
-        # TODO: Попытка сделать универсальный метод для считывания файла.json.
-        # TODO: На данный же момент присутствует зависимость от положения данных
-        # TODO: в файле + данные в файле могу быть различных типов...
-
-        height = 50
-        factor = 20
-        for key, value in self.data.items():
-            Label(self.settings_window, text=f'{key}:', font=("Courier", 14, "italic")).place(x=0, y=height)
-            height += factor
-
-            if isinstance(value, dict):
-                for inside_key, inside_value in value.items():
-                    height += 10
-                    Label(self.settings_window, text=f"    {inside_key}: {inside_value}",
-                          font=("Courier", 14, "italic")).place(x=0, y=height)
-
-                    height += factor
-
-            elif isinstance(value, list):
-                for step in value:
-                    height += 10
-                    var = IntVar()
-                    self.check = Checkbutton(self.settings_window, text=f"{step}", font=("Courier", 14, "italic"))
-                    self.check.place(x=10, y=height)
-                    height += factor
-            else:
-                Label(self.settings_window, text=f"    {key}: {value}\n",
-                      font=("Courier", 14, "italic")).place(x=0, y=height)
-                height += factor
 
     def read_data_json_file(self):
         """
