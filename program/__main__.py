@@ -29,7 +29,8 @@ class App:
         "ridge": RIDGE,
     }
 
-    data = {}
+    task_data = {}  # данные задачи
+    materials_data = {}  # таблица материалов
     buttons = []
 
     def __init__(self):
@@ -48,12 +49,12 @@ class App:
 
         self.read_data_json_file()
 
-        self.deviation = self.data["Входные данные"]["Отклонение"]
-        self.cube_size = self.data["Входные данные"]["Размер куба"]
-        self.spring_diameter = self.data["Входные данные"]["Диаметр пружины"]
-        self.spring_coil_pitch = self.data["Входные данные"]["Шаг витков пружины"]
-        self.wire_diameter = self.data["Входные данные"]["Диаметр пружины"]
-        self.spring_length = self.data["Дополнительные условия"]["Длина пружин"]
+        self.deviation = self.task_data["Входные данные"]["Отклонение"]
+        self.cube_size = self.task_data["Входные данные"]["Размер куба"]
+        self.spring_diameter = self.task_data["Входные данные"]["Диаметр пружины"]
+        self.spring_coil_pitch = self.task_data["Входные данные"]["Шаг витков пружины"]
+        self.wire_diameter = self.task_data["Входные данные"]["Диаметр пружины"]
+        self.spring_length = self.task_data["Дополнительные условия"]["Длина пружин"]
         self.shear_modulus = 10  # модуль сдвига
 
         self.information_canvas()
@@ -73,7 +74,7 @@ class App:
         """
         Вывод информации о задаче + вывод кнопок на полотно
         """
-        height, delta = 50, 30
+        height, delta = 50, 31
 
         Label(self.settings_window, text='Задача №2. Вариант 59',
               font=("Courier", 18, "bold")).place(x=0, y=0)
@@ -82,7 +83,7 @@ class App:
         Label(self.settings_window, text="1.Входные данные:",
               font=("Courier", 14, "bold")).place(x=0, y=height)
 
-        for key, value in self.data["Входные данные"].items():
+        for key, value in self.task_data["Входные данные"].items():
             Label(self.settings_window, text=f'  {key}: {value} мм',
                   font=("Courier", 14, "italic")).place(x=0, y=height + delta)
             height += delta
@@ -91,7 +92,7 @@ class App:
         Label(self.settings_window, text="2.Дополнительные условия:",
               font=("Courier", 14, "bold")).place(x=0, y=height + delta)
 
-        for key, value in self.data["Дополнительные условия"].items():
+        for key, value in self.task_data["Дополнительные условия"].items():
             Label(self.settings_window, text=f'  {key}: {value}',
                   font=("Courier", 14, "italic")).place(x=0, y=height + 2 * delta)
             height += delta
@@ -101,7 +102,7 @@ class App:
               font=("Courier", 14, "bold")).place(x=0, y=height + 2 * delta)
 
         i = 0
-        for value in self.data["Особые условия"]:
+        for value in self.task_data["Особые условия"]:
             checkbutton = Button(self.settings_window, text=f'{value}'.center(40),
                                  font=("Courier", 14, "italic"), relief=GROOVE)
             self.buttons.append(checkbutton)
@@ -157,11 +158,11 @@ class App:
         """
         if find('Input_data.json'):
             with open('Input_data.json', encoding="utf-8") as file:
-                self.data = json.loads(file.read())
+                self.task_data = json.loads(file.read())
         else:
             with open(filedialog.askopenfilename(title="Откройте файл с данными (формат: .json)"),
                       encoding="utf-8") as file:
-                self.data = json.loads(file.read())
+                self.task_data = json.loads(file.read())
 
     def information_console(self):
         """
@@ -175,7 +176,7 @@ class App:
         print("Условие задачи:")
         print(task_text)
 
-        for key, value in self.data.items():
+        for key, value in self.task_data.items():
             print()
             print(f"{key}:")
 
