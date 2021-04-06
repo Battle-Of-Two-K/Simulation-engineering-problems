@@ -3,6 +3,7 @@ import json
 import tkinter as tk
 import tkinter.ttk as ttk
 from tkinter import filedialog
+from math import sin, cos, e
 from tkinter_app_pattern import TkinterApp
 
 
@@ -48,6 +49,10 @@ class App(TkinterApp):
 	materials_data = {}  # таблица материалов
 	buttons = []
 
+	springs_ids = []
+	plus = 0
+	delta = 0
+
 	def draw_table(self):
 		pass
 
@@ -68,6 +73,35 @@ class App(TkinterApp):
 
 		self.draw_chart()
 		self.information_canvas()
+
+	# self.draw_model()
+
+	def create_coords(self, delta_abscissa):
+		diameter = 20
+		center = self.animation_opts['height'] // 2
+		set_ordinate_coords = [center, center - diameter // 2,
+							   center + diameter // 2, center - diameter // 2,
+							   center + diameter // 2, center - diameter // 2, center + diameter // 2, center]
+
+		plus = delta_abscissa
+		for i in set_ordinate_coords:
+			yield delta_abscissa, i
+			delta_abscissa += plus
+
+	def draw_model(self, length):
+		self.springs_ids.append(self.animation.create_line(*self.create_coords(length),
+														   fill='white', width=2))
+
+	def _draw(self):
+		self.draw_model(self.delta)
+
+	def _physics_process(self, delta):
+		self.animation.delete(self.springs_ids)
+		self.springs_ids = []
+
+		self.plus += .1
+
+		self.delta = 20 * cos(self.plus) + 60
 
 	def information_canvas(self):
 		"""
@@ -119,13 +153,16 @@ class App(TkinterApp):
 						font=('Comic Sans MS', 16, 'italic'))
 
 		style.map('TButton', foreground=[('pressed', 'red'), ('active', '#FF6A54')],
-    				background=[('pressed', '!disabled', '#FFB54F'), ('active', '#4B505C')])
+				  background=[('pressed', '!disabled', '#FCEAC6'), ('active', '#4B505C')])
 
 		exit_btn = ttk.Button(self.settings_window, text=f'Выход', command=self.button_close_program)
 		exit_btn.place(x=2 * delta, y=height + 3.5 * delta)
 
 		update_btn = ttk.Button(self.settings_window, text=f'Сбросить', command=self.discard)
 		update_btn.place(x=7 * delta, y=height + 3.5 * delta)
+
+		start_btn = ttk.Button(self.chart, text=f'Start', command=self.discard)
+		start_btn.place(x=550, y=424)
 
 	def button_close_program(self):
 		self.root.destroy()
