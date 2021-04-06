@@ -3,9 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="b6647b13-fcf1-4250-80bd-f21983d77310" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/program/Input_data.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/program/__main__.py" beforeDir="false" afterPath="$PROJECT_DIR$/program/__main__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/other_variant/__main__.py" beforeDir="false" afterPath="$PROJECT_DIR$/other_variant/__main__.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -147,7 +145,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="scratch_3" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="scratch_1" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Simulation-engineering-problems" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -159,7 +157,7 @@
       <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$APPLICATION_CONFIG_DIR$/scratches/scratch_3.py" />
+      <option name="SCRIPT_NAME" value="$APPLICATION_CONFIG_DIR$/scratches/scratch_1.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -171,10 +169,10 @@
     <recent_temporary>
       <list>
         <item itemvalue="Python.__main__ (1)" />
-        <item itemvalue="Python.calc_pi_Monte_Carlo" />
         <item itemvalue="Python.__main__ (2)" />
+        <item itemvalue="Python.scratch_1" />
+        <item itemvalue="Python.calc_pi_Monte_Carlo" />
         <item itemvalue="Python.perspective" />
-        <item itemvalue="Python.scratch_3" />
       </list>
     </recent_temporary>
   </component>

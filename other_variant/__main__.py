@@ -11,7 +11,7 @@ def find(name):
 
 
 class App(TkinterApp):
-	frame_color = 'white'
+	frame_color = '#FCEAC6'
 	chart_opts = {
 		'width': 720,
 		'height': 480,
@@ -40,27 +40,13 @@ class App(TkinterApp):
 
 	text_param = {
 		'font': ('Comic Sans MS', 15, "italic"),
-		'bg': '#2B2E35'
+		'bg': '#2B2E35',
+		'fg': '#FCEAC6'
 	}
 
 	task_data = {}  # данные задачи
 	materials_data = {}  # таблица материалов
 	buttons = []
-
-	def litter(self):
-		# self.root.geometry("1120x720")
-		# self.root.configure(background='red')
-		self.root.resizable(width=False, height=False)
-
-		self.settings_window = tk.Frame(self.root, **self.settings_window_opts)
-		# self.settings_window.config(bg='red')
-		self.settings_window.pack(side='right')
-
-		self.animation = tk.Canvas(self.root, **self.animation_opts)
-		self.animation.pack()
-
-		self.chart = tk.Canvas(self.root, **self.chart_opts)
-		self.chart.pack()
 
 	def draw_table(self):
 		pass
@@ -87,45 +73,59 @@ class App(TkinterApp):
 		"""
 		Вывод информации о задаче + вывод кнопок на полотно
 		"""
-		height, delta = 50, 31
+		height, delta = 50, 35
+		abscissa = 5
 
 		tk.Label(self.settings_window, text='Задача №2. Вариант 59', font=('Comic Sans MS', 18, "bold"),
-				 bg='').place(x=0, y=0)
+				 bg='#2B2E35', fg='#5188BA').place(x=80, y=10)
 
 		# Первый блок данных
-		tk.Label(self.settings_window, text="1.Входные данные:", font=("Courier", 14, "bold")).place(x=0, y=height)
+		tk.Label(self.settings_window, text="1.Входные данные:", font=('Comic Sans MS', 16, "bold"),
+				 bg='#2B2E35', fg='#FFB54F').place(x=abscissa, y=height)
 
 		for key, value in self.task_data["Входные данные"].items():
-			tk.Label(self.settings_window, text=f'  {key}: {value} мм', font=("Courier", 14, "italic")).place(
-				x=0, y=height + delta)
+			tk.Label(self.settings_window, text=f'  {key}: {value} мм', **self.text_param).place(
+				x=abscissa, y=height + delta)
 			height += delta
 
 		# Второй блок данных
-		tk.Label(self.settings_window, text="2.Дополнительные условия:", font=("Courier", 14, "bold")).place(
-			x=0, y=height + delta)
+		tk.Label(self.settings_window, text="2.Дополнительные условия:", font=('Comic Sans MS', 16, "bold"),
+				 bg='#2B2E35', fg='#FFB54F').place(
+			x=abscissa, y=height + delta)
 
 		for key, value in self.task_data["Дополнительные условия"].items():
 			tk.Label(self.settings_window, text=f'  {key}: {value}', **self.text_param).place(
-				x=0, y=height + 2 * delta)
+				x=abscissa, y=height + 2 * delta)
 			height += delta
 
 		# Третий блок данных
-		tk.Label(self.settings_window, text="3.Особыые условия:", font=("Courier", 14, "bold")).place(
-			x=0, y=height + 2 * delta)
+		tk.Label(self.settings_window, text="3.Особые условия:", font=('Comic Sans MS', 16, "bold"),
+				 bg='#2B2E35', fg='#FFB54F').place(
+			x=abscissa, y=height + 2 * delta)
 
 		for key in self.task_data["Особые условия"]:
-			tk.Label(self.settings_window, text=f'  -{key}', font=("Courier", 14, "italic")).place(
-				x=0, y=height + 3 * delta)
+			tk.Label(self.settings_window, text=f'  -{key}', **self.text_param).place(
+				x=abscissa, y=height + 3 * delta)
 			height += delta
 
 		# Кнопки
-		exit_btn = tk.Button(self.settings_window, text=f'Выход', font=(
-			"Courier", 12, "italic"), command=self.button_close_program)
-		exit_btn.place(x=4 * delta, y=height + 3 * delta)
+		style = ttk.Style()
+		style.theme_use('clam')
+		style.configure('TButton', background='#2B2E35',
+						foreground='#FF6A54', width=10,
+						borderwidth=1, focusthickness=2,
+						relief='sunken',
+						focuscolor='#2B2E30',
+						font=('Comic Sans MS', 16, 'italic'))
 
-		exit_btn = tk.Button(self.settings_window, text=f'Сбросить', font=(
-			"Courier", 12, "italic"), command=self.discard)
-		exit_btn.place(x=7 * delta, y=height + 3 * delta)
+		style.map('TButton', foreground=[('pressed', 'red'), ('active', '#FF6A54')],
+    				background=[('pressed', '!disabled', '#FFB54F'), ('active', '#4B505C')])
+
+		exit_btn = ttk.Button(self.settings_window, text=f'Выход', command=self.button_close_program)
+		exit_btn.place(x=2 * delta, y=height + 3.5 * delta)
+
+		update_btn = ttk.Button(self.settings_window, text=f'Сбросить', command=self.discard)
+		update_btn.place(x=7 * delta, y=height + 3.5 * delta)
 
 	def button_close_program(self):
 		self.root.destroy()
@@ -135,8 +135,7 @@ class App(TkinterApp):
 							   self.chart_opts['width'], self.chart_opts['height'] // 2,
 							   fill='white', arrow=tk.LAST, arrowshape=(10, 20, 5))
 
-		self.chart.create_line(self.chart_opts['width'] // 2, self.chart_opts['height'], self.chart_opts['width'] // 2,
-							   0,
+		self.chart.create_line(50, self.chart_opts['height'], 50, 0,
 							   fill='white', arrow=tk.LAST, arrowshape=(10, 20, 5))
 
 	def discard(self):
@@ -144,6 +143,7 @@ class App(TkinterApp):
 		Сброс расчёта. Начальное состояние программы.
 		"""
 		self.chart.delete("all")
+		self.draw_chart()
 
 	def read_data_json_file(self):
 		"""
