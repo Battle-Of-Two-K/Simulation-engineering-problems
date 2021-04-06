@@ -158,7 +158,7 @@ class App:
         файла предоставляется пользователю.
         """
         if find('Input_data.json'):
-            with open('Input_data.json', encoding="utf-8") as file:
+            with open('../other_variant/Input_data.json', encoding="utf-8") as file:
                 self.task_data = json.loads(file.read())
         else:
             with open(filedialog.askopenfilename(title="Откройте файл с данными (формат: .json)"),
