@@ -1,4 +1,5 @@
 from tkinter import filedialog
+from tkinter.ttk import *
 from tkinter import *
 from sympy import *
 import json
@@ -58,7 +59,7 @@ class App:
         self.shear_modulus = 10  # модуль сдвига
 
         self.information_canvas()
-        # self.information_console()
+        self.information_console()
         # print(self.calc_coefficient_spring_stiffness())
 
     def calc_coefficient_spring_stiffness(self):
