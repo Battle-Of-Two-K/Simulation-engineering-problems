@@ -127,7 +127,7 @@ class App:
     def equation_for_normal_conditions(self):
         t = Symbol('t')
         x = Function('x')
-        func = Eq(x(t).diff(t, t), -2*x(t)-3), x(t)
+        func = (Eq(x(t).diff(t, t), -2*x(t)-3), x(t))
         pprint(func)
 
     def discard(self):
