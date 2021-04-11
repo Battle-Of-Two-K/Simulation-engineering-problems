@@ -1,13 +1,11 @@
 import os
 import json
-import time
-import tkinter as tk
-from math import sin
+import logging
+from animation import *
 import tkinter.ttk as ttk
 from tkinter import filedialog
 from tkinter_app_pattern import TkinterApp
-import logging
-from animation import SpringPendulumAnimation
+
 
 logging.basicConfig(level=logging.ERROR)
 
@@ -56,15 +54,12 @@ class App(TkinterApp):
 
 	springs_ids = []
 
-	plus = 1
-	delta_right = 20
-	delta_left = 20
+	app_time = 0
 
 	def draw_table(self):
 		pass
 
 	def _ready(self):
-		self.time = time.time()
 		self.read_data_json_file()
 		self.root.geometry("1182x724+300+100")
 		self.root.resizable(width=False, height=False)
@@ -76,11 +71,17 @@ class App(TkinterApp):
 		self.animation = tk.Canvas(self.root, **self.animation_opts)
 		self.animation.place(x=0, y=0)
 
-		self.table = SpringPendulumAnimation(self.animation, 80)
-		self.table.draw_table(3, 'white')
-		self.left_spring_id = self.table.draw_left_spring(10, 20, self.delta_left, 'white')
-		self.right_spring_id = self.table.draw_right_spring(10, 20, self.delta_right, 'white')
-		self.cube_id = self.table.draw_cube(self.delta_left)
+		# создание объетов
+		self.table = Table(520, self.animation)
+
+		self.cube = Cube(100)
+		self.left_spring = Spring(5, 20)
+		self.right_spring = Spring(10, 20)
+
+		# Добавление объектов на стол:
+		self.table.add_obj(self.cube)
+		self.table.add_obj(self.left_spring)
+		self.table.add_obj(self.right_spring)
 
 		self.chart = tk.Canvas(self.root, **self.chart_opts)
 		self.chart.place(x=0, y=240)
@@ -88,31 +89,25 @@ class App(TkinterApp):
 		self.draw_chart()
 		self.information_canvas()
 
-		# self.draw_model(self.delta)
-
 	def _draw(self):
-		self.left_spring_id = self.table.draw_left_spring(7, 20, self.delta_left, 'white')
-		self.right_spring_id = self.table.draw_right_spring(7, 20, self.delta_right, 'white')
-		self.cube_id = self.table.draw_cube(self.delta_left * 12 - 235, 'red')
+		self.animation.create_line(*self.table.generate_table_coords(), fill='#FCEAC6', width=2, tags=("table",))
+		self.animation.create_line(*self.left_spring.create_coords(self.table.create_coords_mesh_left_spring()[0],
+																self.table.create_coords_mesh_left_spring()[1]),
+								fill='#FCEAC6', tags=("spring",))
+
+		self.animation.create_line(*self.left_spring.create_coords(self.table.create_coords_mesh_right_spring()[0],
+																self.table.create_coords_mesh_right_spring()[1]),
+								fill='#FCEAC6', tags=("spring",))
+
+		self.animation.create_rectangle(self.table.center_mass_position - 50, self.animation_opts['height'] // 2 - 50,
+									 self.table.center_mass_position + 50, self.animation_opts['height'] // 2 + 50,
+									 fill="#B2B428", tags=("spring",))
 
 	def _physics_process(self, delta):
-		self.animation.delete(self.left_spring_id)
-		self.animation.delete(self.right_spring_id)
-		self.animation.delete(self.cube_id)
-		self.left_spring_id = 0
-		self.right_spring_id = 0
-		self.cube_id = 0
-		self.plus += .1
-
-		# гармонические
-		self.delta_right = 5 * sin(self.plus) + 20
-		self.delta_left = 5 * sin(-self.plus) + 20
-
-		# затухающие
-		# self.delta_right = 15 * e ** (-self.plus / 20) * sin(self.plus) + 20
-		# self.delta_left = 15 * e ** (-self.plus / 20) * sin(-self.plus) + 20
-
-		return delta
+		self.animation.delete('spring')
+		self.animation.delete('table')
+		self.table.center_mass_position = 200 * sin(self.app_time / 10)  # / 50 чтоб снизить скорость
+		self.app_time += delta
 
 	def information_canvas(self):
 		"""
@@ -204,7 +199,7 @@ class App(TkinterApp):
 		файла предоставляется пользователю.
 		"""
 		if find('Input_data.json'):
-			with open('../other_variant/Input_data.json', encoding="utf-8") as file:
+			with open('../programm/Input_data.json', encoding="utf-8") as file:
 				self.task_data = json.loads(file.read())
 		else:
 			with open(filedialog.askopenfilename(title="Откройте файл с данными (формат: .json)"), encoding="utf-8") \
