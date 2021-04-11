@@ -86,9 +86,9 @@ class Table:
         return (self.objects_data["cube_size"] // 2, self.canvas_height // 2
                 - self.objects_data["cube_size"] // 2), \
                (self.objects_data["cube_size"] // 2, self.canvas_height
-                // 2 + self.objects_data["cube_size"] // 2), \
+                // 2 + self.objects_data["cube_size"] // 2 + 2), \
                (self.canvas_width - self.objects_data["cube_size"] // 2,
-                self.canvas_height // 2 + self.objects_data["cube_size"] // 2), \
+                self.canvas_height // 2 + self.objects_data["cube_size"] // 2 + 2), \
                (self.canvas_width - self.objects_data["cube_size"] // 2,
                 self.canvas_height // 2 - self.objects_data["cube_size"] // 2)
 
