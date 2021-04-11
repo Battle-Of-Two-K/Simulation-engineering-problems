@@ -1,7 +1,9 @@
 import os
 import json
 import logging
+from chart import Chart
 from animation import *
+from math import sin, e
 import tkinter.ttk as ttk
 from tkinter import filedialog
 from tkinter_app_pattern import TkinterApp
@@ -54,15 +56,16 @@ class App(TkinterApp):
     springs_ids = []
 
     app_time = 0
+    amplitude = 200
 
     def draw_table(self):
         pass
 
     def _ready(self):
+        self.coords_chart = []
         self.read_data_json_file()
         self.root.geometry("1182x724+300+100")
         self.root.resizable(width=False, height=False)
-        # self.root.overrideredirect(1)
 
         self.settings_window = tk.Frame(self.root, **self.settings_window_opts)
         self.settings_window.place(x=720, y=0)
@@ -75,7 +78,7 @@ class App(TkinterApp):
 
         self.cube_len = 80
         self.cube = Cube(self.cube_len)
-        self.left_spring = Spring(5, 20)
+        self.left_spring = Spring(10, 20)
         self.right_spring = Spring(10, 20)
 
         # Добавление объектов на стол:
@@ -83,38 +86,47 @@ class App(TkinterApp):
         self.table.add_obj(self.left_spring)
         self.table.add_obj(self.right_spring)
 
-        self.chart = tk.Canvas(self.root, **self.chart_opts)
-        self.chart.place(x=0, y=240)
-
+        self.window_chart = tk.Canvas(self.root, **self.chart_opts)
+        self.window_chart.place(x=0, y=240)
         self.draw_chart()
+
+        self.chart = Chart(self.window_chart, 0, 0)
+
         self.information_canvas()
 
     def _draw(self):
         self.animation.create_line(*self.table.generate_table_coords(), fill='#FCEAC6', width=2, tags=("table",))
         self.animation.create_line(*self.left_spring.create_coords(self.table.create_coords_mesh_left_spring()[0],
                                                                    self.table.create_coords_mesh_left_spring()[1]),
-                                   fill='#FCEAC6', tags=("spring",))
+                                   fill='#FCEAC6', tags=("left_spring",))
 
-        self.animation.create_line(*self.left_spring.create_coords(self.table.create_coords_mesh_right_spring()[0],
+        self.animation.create_line(*self.right_spring.create_coords(self.table.create_coords_mesh_right_spring()[0],
                                                                    self.table.create_coords_mesh_right_spring()[1]),
-                                   fill='#FCEAC6', tags=("spring",))
+                                   fill='#FCEAC6', tags=("right_spring",))
 
         self.animation.create_rectangle(self.table.center_mass_position - self.cube_len // 2,
                                         self.animation_opts['height'] // 2 - self.cube_len // 2,
                                         self.table.center_mass_position + self.cube_len // 2,
                                         self.animation_opts['height'] // 2 + self.cube_len // 2,
-                                        fill="#FF6A54", tags=("spring",))
+                                        fill="#FF6A54", tags=("cube",))
+        if len(self.coords_chart) != 0:
+            self.window_chart.create_line(*self.coords_chart, fill='#5188BA')
+            del self.coords_chart[0]
 
     def _physics_process(self, delta):
-        self.animation.delete('spring')
+        self.animation.delete('left_spring')
+        self.animation.delete('right_spring')
         self.animation.delete('table')
-        self.table.center_mass_position = 200 * sin(self.app_time / 10)  # / 10 чтоб снизить скорость
+        self.animation.delete('cube')
+        self.coords_chart.append(self.chart.convert_coords(self.app_time, self.amplitude * e ** (-self.app_time / 200) *
+                                                           sin(self.app_time / 10), 1))
+        self.table.center_mass_position = self.amplitude * e ** (-self.app_time / 200) * sin(self.app_time / 10)
         self.app_time += delta
 
     def information_canvas(self):
         """
-		Вывод информации о задаче + вывод кнопок на полотно
-		"""
+        Вывод информации о задаче + вывод кнопок на полотно
+        """
         height, delta = 50, 35
         abscissa = 5
 
@@ -169,37 +181,37 @@ class App(TkinterApp):
         update_btn = ttk.Button(self.settings_window, text=f'Сбросить', command=self.discard)
         update_btn.place(x=7 * delta, y=height + 3.5 * delta)
 
-        stop_btn = ttk.Button(self.chart, text=f'Start', command=self.discard)
+        stop_btn = ttk.Button(self.window_chart, text=f'Start', command=self.discard)
         stop_btn.place(x=380, y=424)
 
-        start_btn = ttk.Button(self.chart, text=f'Stop', command=self.discard)
+        start_btn = ttk.Button(self.window_chart, text=f'Stop', command=self.discard)
         start_btn.place(x=550, y=424)
 
     def button_close_program(self):
         self.root.destroy()
 
     def draw_chart(self):
-        self.chart.create_line(0, self.chart_opts['height'] // 2,
-                               self.chart_opts['width'], self.chart_opts['height'] // 2,
-                               fill='white', arrow=tk.LAST, arrowshape=(10, 20, 5))
+        self.window_chart.create_line(0, self.chart_opts['height'] // 2,
+                                      self.chart_opts['width'], self.chart_opts['height'] // 2,
+                                      fill='white', arrow=tk.LAST, arrowshape=(10, 20, 5))
 
-        self.chart.create_line(50, self.chart_opts['height'], 50, 0,
-                               fill='white', arrow=tk.LAST, arrowshape=(10, 20, 5))
+        self.window_chart.create_line(50, self.chart_opts['height'], 50, 0,
+                                      fill='white', arrow=tk.LAST, arrowshape=(10, 20, 5))
 
     def discard(self):
         """
-		Сброс расчёта. Начальное состояние программы.
-		"""
-        self.chart.delete("all")
+        Сброс расчёта. Начальное состояние программы.
+        """
+        self.window_chart.delete("all")
         self.draw_chart()
 
     def read_data_json_file(self):
         """
-		Читать данные файла.
-		Данный метод ищет файл <Input_data.json> в той же директории где
-		лежит файл программы и если не находит, то право на выбор нужного
-		файла предоставляется пользователю.
-		"""
+        Читать данные файла.
+        Данный метод ищет файл <Input_data.json> в той же директории где
+        лежит файл программы и если не находит, то право на выбор нужного
+        файла предоставляется пользователю.
+        """
         if find('Input_data.json'):
             with open('../programm/Input_data.json', encoding="utf-8") as file:
                 self.task_data = json.loads(file.read())
@@ -210,8 +222,8 @@ class App(TkinterApp):
 
     def information_console(self):
         """
-		Оформление данных задачи в консоли.
-		"""
+        Оформление данных задачи в консоли.
+        """
         task_text = "Горизонтальный реальный пружинный маятник, закреплённый двумя пружинами. Тело - куб."
 
         print("Задача №2. Вариант 59.".center(len(task_text)))

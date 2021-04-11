@@ -18,11 +18,11 @@ class Spring:
     def create_coords(self, start_coord: tuple, end_coord: tuple):
         if start_coord[1] == end_coord[1] and start_coord[0] < end_coord[0]:
 
-            distance_turns = abs(end_coord[0] - start_coord[0]) / self.amount_turns
+            distance_turns = abs(end_coord[0] - start_coord[0]) / self.__amount_turns
 
             plus = distance_turns
             distance_turns = 0
-            for _ in range(self.amount_turns + 1):
+            for _ in range(self.__amount_turns + 1):
                 yield (start_coord[0] + distance_turns, start_coord[1] + self.diameter // 2), \
                       (start_coord[0] + distance_turns, start_coord[1] - self.diameter // 2)
                 distance_turns += plus
@@ -138,7 +138,7 @@ class App(TkinterApp):
         self.table = Table(520, self.canvas)
 
         self.cube = Cube(100)
-        self.left_spring = Spring(5, 20)
+        self.left_spring = Spring(10, 20)
         self.right_spring = Spring(10, 20)
 
         # Добавление объектов на стол:
@@ -158,7 +158,7 @@ class App(TkinterApp):
                                                                 self.table.create_coords_mesh_left_spring()[1]),
                                 fill="#B2B428", tags=("spring",))
 
-        self.canvas.create_line(*self.left_spring.create_coords(self.table.create_coords_mesh_right_spring()[0],
+        self.canvas.create_line(*self.right_spring.create_coords(self.table.create_coords_mesh_right_spring()[0],
                                                                 self.table.create_coords_mesh_right_spring()[1]),
                                 fill="#B2B428", tags=("spring",))
 
