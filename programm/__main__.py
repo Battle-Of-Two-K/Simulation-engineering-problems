@@ -70,7 +70,7 @@ class App(TkinterApp):
         self.animation = tk.Canvas(self.root, **self.animation_opts)
         self.animation.place(x=0, y=0)
 
-        # создание объетов
+        # создание объектов
         self.table = Table(520, self.animation)
 
         self.cube_len = 80
@@ -108,7 +108,7 @@ class App(TkinterApp):
     def _physics_process(self, delta):
         self.animation.delete('spring')
         self.animation.delete('table')
-        self.table.center_mass_position = 200 * sin(self.app_time / 10)  # / 50 чтоб снизить скорость
+        self.table.center_mass_position = 200 * sin(self.app_time / 10)  # / 10 чтоб снизить скорость
         self.app_time += delta
 
     def information_canvas(self):
