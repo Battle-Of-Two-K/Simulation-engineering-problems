@@ -137,9 +137,10 @@ class App(TkinterApp):
         # создание объетов
         self.table = Table(520, self.canvas)
 
-        self.cube = Cube(100)
-        self.left_spring = Spring(10, 20)
-        self.right_spring = Spring(10, 20)
+        self.cube_len = 90
+        self.cube = Cube(self.cube_len)
+        self.left_spring = Spring(20, 25)
+        self.right_spring = Spring(20, 25)
 
         # Добавление объектов на стол:
         self.table.add_obj(self.cube)
@@ -149,6 +150,7 @@ class App(TkinterApp):
     def _physics_process(self, delta):
         self.canvas.delete('spring')
         self.canvas.delete('table')
+        self.canvas.delete('cube')
         self.table.center_mass_position = 200 * sin(self.app_time / 10)  # / 50 чтоб снизить скорость
         self.app_time += delta
 
@@ -159,12 +161,14 @@ class App(TkinterApp):
                                 fill="#B2B428", tags=("spring",))
 
         self.canvas.create_line(*self.right_spring.create_coords(self.table.create_coords_mesh_right_spring()[0],
-                                                                self.table.create_coords_mesh_right_spring()[1]),
+                                                                 self.table.create_coords_mesh_right_spring()[1]),
                                 fill="#B2B428", tags=("spring",))
 
-        self.canvas.create_rectangle(self.table.center_mass_position - 50, self.canvas_opts['height'] // 2 - 50,
-                                     self.table.center_mass_position + 50, self.canvas_opts['height'] // 2 + 50,
-                                     fill="#B2B428", tags=("spring",))
+        self.canvas.create_rectangle(self.table.center_mass_position - self.cube_len // 2,
+                                     self.canvas_opts['height'] // 2 - self.cube_len // 2,
+                                     self.table.center_mass_position + self.cube_len // 2,
+                                     self.canvas_opts['height'] // 2 + self.cube_len // 2,
+                                     fill="#B2B428", tags=("cube",))
 
 
 if __name__ == '__main__':

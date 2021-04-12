@@ -5,7 +5,6 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/programm/__main__.py" beforeDir="false" afterPath="$PROJECT_DIR$/programm/__main__.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/programm/animation.py" beforeDir="false" afterPath="$PROJECT_DIR$/programm/animation.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/programm/chart.py" beforeDir="false" afterPath="$PROJECT_DIR$/programm/chart.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -49,7 +48,7 @@
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="com.intellij.ide.scratch.LRUPopupBuilder$1/New Scratch File" value="Python" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../Buffon-s-Noodle-Problem/Buffon_problem.py" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../MathEDU/Cartesian_coordinate_system/__main__.py" />
     <property name="restartRequiresConfirmation" value="false" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
@@ -63,7 +62,7 @@
       <recent name="C:\PythonProjects\Simulation-engineering-problems\other_variant" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.__main__ (2)">
+  <component name="RunManager" selected="Python.animation (2)">
     <configuration name="Buffon_problem" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Simulation-engineering-problems" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -192,8 +191,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.__main__ (2)" />
         <item itemvalue="Python.animation (2)" />
+        <item itemvalue="Python.__main__ (2)" />
         <item itemvalue="Python.chart" />
         <item itemvalue="Python.Buffon_problem" />
         <item itemvalue="Python.__main__" />

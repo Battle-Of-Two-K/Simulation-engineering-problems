@@ -56,6 +56,7 @@ class App(TkinterApp):
     springs_ids = []
 
     app_time = 0
+    save_delta = 0
     amplitude = 200
 
     def draw_table(self):
@@ -64,7 +65,8 @@ class App(TkinterApp):
     def _ready(self):
         self.coords_chart = []
         self.read_data_json_file()
-        self.root.geometry("1182x724+300+100")
+        root_size = "1182x724+300+100"
+        self.root.geometry(root_size)
         self.root.resizable(width=False, height=False)
 
         self.settings_window = tk.Frame(self.root, **self.settings_window_opts)
@@ -109,19 +111,23 @@ class App(TkinterApp):
                                         self.table.center_mass_position + self.cube_len // 2,
                                         self.animation_opts['height'] // 2 + self.cube_len // 2,
                                         fill="#FF6A54", tags=("cube",))
-        if len(self.coords_chart) != 0:
+
+        # Условие начала отрисовки графика:
+        if len(self.coords_chart) > 2:
             self.window_chart.create_line(*self.coords_chart, fill='#5188BA')
-            del self.coords_chart[0]
+            del self.coords_chart[0]  # удаление "отработавших" координат из списка
 
     def _physics_process(self, delta):
+        function = self.amplitude * e ** (-self.app_time / 100) * sin(self.app_time / 10)
+        self.save_delta = delta
+
         self.animation.delete('left_spring')
         self.animation.delete('right_spring')
         self.animation.delete('table')
         self.animation.delete('cube')
-        self.coords_chart.append(self.chart.convert_coords(self.app_time, self.amplitude * e ** (-self.app_time / 200) *
-                                                           sin(self.app_time / 10), 1))
-        self.table.center_mass_position = self.amplitude * e ** (-self.app_time / 200) * sin(self.app_time / 10)
-        self.app_time += delta
+        self.table.center_mass_position = function
+        self.coords_chart.append(self.chart.convert_coords(self.app_time, function, 1))
+        self.app_time += self.save_delta
 
     def information_canvas(self):
         """
@@ -178,14 +184,17 @@ class App(TkinterApp):
         exit_btn = ttk.Button(self.settings_window, text=f'Выход', command=self.button_close_program)
         exit_btn.place(x=2 * delta, y=height + 3.5 * delta)
 
-        update_btn = ttk.Button(self.settings_window, text=f'Сбросить', command=self.discard)
+        update_btn = ttk.Button(self.settings_window, text=f'Сбросить')
         update_btn.place(x=7 * delta, y=height + 3.5 * delta)
 
-        stop_btn = ttk.Button(self.window_chart, text=f'Start', command=self.discard)
-        stop_btn.place(x=380, y=424)
+        start_btn = ttk.Button(self.window_chart, text=f'Start')
+        start_btn.place(x=380, y=424)
 
-        start_btn = ttk.Button(self.window_chart, text=f'Stop', command=self.discard)
-        start_btn.place(x=550, y=424)
+        stop_btn = ttk.Button(self.window_chart, text=f'Stop', command=self.button_stop_process)
+        stop_btn.place(x=550, y=424)
+
+    def button_stop_process(self):
+        self.save_delta = 0
 
     def button_close_program(self):
         self.root.destroy()
