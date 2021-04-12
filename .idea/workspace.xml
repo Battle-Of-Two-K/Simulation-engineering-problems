@@ -4,7 +4,6 @@
     <list default="true" id="b6647b13-fcf1-4250-80bd-f21983d77310" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/programm/__main__.py" beforeDir="false" afterPath="$PROJECT_DIR$/programm/__main__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/programm/animation.py" beforeDir="false" afterPath="$PROJECT_DIR$/programm/animation.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -62,7 +61,7 @@
       <recent name="C:\PythonProjects\Simulation-engineering-problems\other_variant" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.animation (2)">
+  <component name="RunManager" selected="Python.__main__ (2)">
     <configuration name="Buffon_problem" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Simulation-engineering-problems" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -191,8 +190,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.animation (2)" />
         <item itemvalue="Python.__main__ (2)" />
+        <item itemvalue="Python.animation (2)" />
         <item itemvalue="Python.chart" />
         <item itemvalue="Python.Buffon_problem" />
         <item itemvalue="Python.__main__" />

@@ -20,7 +20,7 @@ class App(TkinterApp):
     chart_opts = {
         'width': 720,
         'height': 480,
-        'bg': '#2B2E35',
+        'bg': 'black',
         'highlightbackground': frame_color,
         'highlightcolor': frame_color
     }
@@ -28,7 +28,7 @@ class App(TkinterApp):
     animation_opts = {
         'width': 720,
         'height': 240,
-        'bg': '#2B2E35',
+        'bg': 'black',
         'highlightbackground': frame_color,
         'highlightcolor': frame_color
     }
@@ -36,7 +36,7 @@ class App(TkinterApp):
     settings_window_opts = {
         'width': 462,
         'height': 724,
-        'bg': '#2B2E35',
+        'bg': 'black',
         'highlightbackground': frame_color,
         'highlightcolor': frame_color,
         'highlightthickness': 2
@@ -45,7 +45,7 @@ class App(TkinterApp):
 
     text_param = {
         'font': ('Comic Sans MS', 15, "italic"),
-        'bg': '#2B2E35',
+        'bg': 'black',
         'fg': '#FCEAC6'
     }
 
@@ -110,11 +110,11 @@ class App(TkinterApp):
                                         self.animation_opts['height'] // 2 - self.cube_len // 2,
                                         self.table.center_mass_position + self.cube_len // 2,
                                         self.animation_opts['height'] // 2 + self.cube_len // 2,
-                                        fill="#FF6A54", tags=("cube",))
+                                        fill="#FCEAC6", tags=("cube",))
 
         # Условие начала отрисовки графика:
         if len(self.coords_chart) > 2:
-            self.window_chart.create_line(*self.coords_chart, fill='#5188BA')
+            self.window_chart.create_line(*self.coords_chart, fill='#FCEAC6', width=2)
             del self.coords_chart[0]  # удаление "отработавших" координат из списка
 
     def _physics_process(self, delta):
@@ -137,11 +137,11 @@ class App(TkinterApp):
         abscissa = 5
 
         tk.Label(self.settings_window, text='Задача №2. Вариант 59', font=('Comic Sans MS', 18, "bold"),
-                 bg='#2B2E35', fg='#5188BA').place(x=80, y=10)
+                 bg='black', fg='#5188BA').place(x=80, y=10)
 
         # Первый блок данных
         tk.Label(self.settings_window, text="1.Входные данные:", font=('Comic Sans MS', 16, "bold"),
-                 bg='#2B2E35', fg='#FFB54F').place(x=abscissa, y=height)
+                 bg='black', fg='#FFB54F').place(x=abscissa, y=height)
 
         for key, value in self.task_data["Входные данные"].items():
             tk.Label(self.settings_window, text=f'  {key}: {value} мм', **self.text_param).place(
@@ -150,7 +150,7 @@ class App(TkinterApp):
 
         # Второй блок данных
         tk.Label(self.settings_window, text="2.Дополнительные условия:", font=('Comic Sans MS', 16, "bold"),
-                 bg='#2B2E35', fg='#FFB54F').place(
+                 bg='black', fg='#FFB54F').place(
             x=abscissa, y=height + delta)
 
         for key, value in self.task_data["Дополнительные условия"].items():
@@ -160,7 +160,7 @@ class App(TkinterApp):
 
         # Третий блок данных
         tk.Label(self.settings_window, text="3.Особые условия:", font=('Comic Sans MS', 16, "bold"),
-                 bg='#2B2E35', fg='#FFB54F').place(
+                 bg='black', fg='#FFB54F').place(
             x=abscissa, y=height + 2 * delta)
 
         for key in self.task_data["Особые условия"]:
@@ -171,15 +171,15 @@ class App(TkinterApp):
         # Кнопки
         style = ttk.Style()
         style.theme_use('clam')
-        style.configure('TButton', background='#2B2E35',
-                        foreground='#FF6A54', width=10,
+        style.configure('TButton', background='black',
+                        foreground='#FCEAC6', width=10,
                         borderwidth=1, focusthickness=2,
                         relief='sunken',
                         focuscolor='#2B2E30',
                         font=('Comic Sans MS', 16, 'italic'))
 
-        style.map('TButton', foreground=[('pressed', 'red'), ('active', '#FF6A54')],
-                  background=[('pressed', '!disabled', '#FCEAC6'), ('active', '#4B505C')])
+        style.map('TButton', foreground=[('pressed', 'red'), ('active', 'red')],
+                  background=[('pressed', '!disabled', '#FCEAC6'), ('active', '#FCEAC6')])
 
         exit_btn = ttk.Button(self.settings_window, text=f'Выход', command=self.button_close_program)
         exit_btn.place(x=2 * delta, y=height + 3.5 * delta)
@@ -202,10 +202,10 @@ class App(TkinterApp):
     def draw_chart(self):
         self.window_chart.create_line(0, self.chart_opts['height'] // 2,
                                       self.chart_opts['width'], self.chart_opts['height'] // 2,
-                                      fill='white', arrow=tk.LAST, arrowshape=(10, 20, 5))
+                                      fill='#FCEAC6', arrow=tk.LAST, arrowshape=(10, 20, 5))
 
         self.window_chart.create_line(50, self.chart_opts['height'], 50, 0,
-                                      fill='white', arrow=tk.LAST, arrowshape=(10, 20, 5))
+                                      fill='#FCEAC6', arrow=tk.LAST, arrowshape=(10, 20, 5))
 
     def discard(self):
         """
