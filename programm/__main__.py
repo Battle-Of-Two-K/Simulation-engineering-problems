@@ -8,37 +8,50 @@ import tkinter.ttk as ttk
 from tkinter import filedialog
 from tkinter_app_pattern import TkinterApp
 
+PENDULUM_AMPLITUDE = 200  # амплитуда матяника
+START_POSITION_CUBE = -200  # начальное положение куба
+SPRING_SHAPE = 10, 20  # 10 - кол-во витков, 20 - диаметр
+CUBE_LENGTH = 80  # длина ребра куба
+
+# строчка, позволяет не выводить лишние данные (они нужны только разработчику):
 logging.basicConfig(level=logging.ERROR)
 
 
 def find(name):
+    """
+    Поиск файла
+    Args:
+        name: имя файла
+
+    Returns: True или False
+    """
     return os.path.exists(name)
 
 
 class App(TkinterApp):
-    frame_color = '#FCEAC6'
+    FRAME_COLOR = '#FCEAC6'
     chart_opts = {
         'width': 720,
         'height': 480,
         'bg': '#2B2E35',
-        'highlightbackground': frame_color,
-        'highlightcolor': frame_color
+        'highlightbackground': FRAME_COLOR,
+        'highlightcolor': FRAME_COLOR
     }
 
     animation_opts = {
         'width': 720,
         'height': 240,
         'bg': '#2B2E35',
-        'highlightbackground': frame_color,
-        'highlightcolor': frame_color
+        'highlightbackground': FRAME_COLOR,
+        'highlightcolor': FRAME_COLOR
     }
 
     settings_window_opts = {
         'width': 462,
         'height': 724,
         'bg': '#2B2E35',
-        'highlightbackground': frame_color,
-        'highlightcolor': frame_color,
+        'highlightbackground': FRAME_COLOR,
+        'highlightcolor': FRAME_COLOR,
         'highlightthickness': 2
 
     }
@@ -50,84 +63,92 @@ class App(TkinterApp):
     }
 
     task_data = {}  # данные задачи
-    materials_data = {}  # таблица материалов
-    buttons = []
 
-    springs_ids = []
-
-    app_time = 0
-    save_delta = 0
-    amplitude = 200
-
-    def draw_table(self):
-        pass
+    app_time = 0  # время приложения
+    coords_chart = []
 
     def _ready(self):
-        self.coords_chart = []
-        self.read_data_json_file()
-        root_size = "1182x724+300+100"
-        self.root.geometry(root_size)
-        self.root.resizable(width=False, height=False)
+        ROOT_SIZE = "1182x724+300+100"
 
+        # Считываем информацию с файла:
+        self.read_data_json_file()
+
+        self.root.geometry(ROOT_SIZE)
+        self.root.resizable(width=False, height=False)  # неизменный размер окна
+
+        # Рамка с информацией о задаче:
         self.settings_window = tk.Frame(self.root, **self.settings_window_opts)
         self.settings_window.place(x=720, y=0)
 
+        # Полотно с анимацией маятника:
         self.animation = tk.Canvas(self.root, **self.animation_opts)
         self.animation.place(x=0, y=0)
 
-        # создание объектов
-        self.table = Table(520, self.animation)
-
-        self.cube_len = 80
-        self.cube = Cube(self.cube_len)
-        self.left_spring = Spring(10, 20)
-        self.right_spring = Spring(10, 20)
+        # Создание объектов
+        self.table = Table(520, self.animation, START_POSITION_CUBE)  # стол
+        self.cube = Cube(CUBE_LENGTH)  # кубик
+        self.left_spring = Spring(*SPRING_SHAPE)  # левая пружина
+        self.right_spring = Spring(*SPRING_SHAPE)  # правая пружина
 
         # Добавление объектов на стол:
-        self.table.add_obj(self.cube)
-        self.table.add_obj(self.left_spring)
-        self.table.add_obj(self.right_spring)
+        self.table.add_obj(self.cube)  # добавление куба на стол
+        self.table.add_obj(self.left_spring)  # добавление левой пружины на стол
+        self.table.add_obj(self.right_spring)  # добавление правой пружины на стол
 
+        # Полотно с графиком:
         self.window_chart = tk.Canvas(self.root, **self.chart_opts)
         self.window_chart.place(x=0, y=240)
-        self.draw_chart()
 
-        self.chart = Chart(self.window_chart, 0, 0)
+        self.draw_chart_axes()  # отрисовка осей координат
 
-        self.information_canvas()
+        self.chart = Chart(self.window_chart, 0, 0)  # создание графика:
+
+        self.information_canvas()  # вывод считанной информации с файла на рамку
+
+        self._phys_flag = False  # не запускать процесс (работу приложения)
 
     def _draw(self):
+        # Отрисовка стола:
         self.animation.create_line(*self.table.generate_table_coords(), fill='#FCEAC6', width=2, tags=("table",))
+
+        # Отрисовка левой пружины:
         self.animation.create_line(*self.left_spring.create_coords(self.table.create_coords_mesh_left_spring()[0],
                                                                    self.table.create_coords_mesh_left_spring()[1]),
                                    fill='#FCEAC6', tags=("left_spring",))
 
+        # Отрисовка правой пружины:
         self.animation.create_line(*self.right_spring.create_coords(self.table.create_coords_mesh_right_spring()[0],
                                                                    self.table.create_coords_mesh_right_spring()[1]),
                                    fill='#FCEAC6', tags=("right_spring",))
 
-        self.animation.create_rectangle(self.table.center_mass_position - self.cube_len // 2,
-                                        self.animation_opts['height'] // 2 - self.cube_len // 2,
-                                        self.table.center_mass_position + self.cube_len // 2,
-                                        self.animation_opts['height'] // 2 + self.cube_len // 2,
+        # Отрисовка кубика:
+        self.animation.create_rectangle(self.table.center_mass_position - CUBE_LENGTH // 2,
+                                        self.animation_opts['height'] // 2 - CUBE_LENGTH // 2,
+                                        self.table.center_mass_position + CUBE_LENGTH // 2,
+                                        self.animation_opts['height'] // 2 + CUBE_LENGTH // 2,
                                         fill="#FF6A54", tags=("cube",))
 
         # Условие начала отрисовки графика:
         if len(self.coords_chart) > 2:
+            # Отрисовка графика:
             self.window_chart.create_line(*self.coords_chart, fill='#5188BA')
             del self.coords_chart[0]  # удаление "отработавших" координат из списка
 
     def _physics_process(self, delta):
-        function = self.amplitude * e ** (-self.app_time / 100) * sin(self.app_time / 10)
-        self.save_delta = delta
+
+        self.function = PENDULUM_AMPLITUDE * e ** (-self.app_time / 100) * sin(self.app_time / 10 - START_POSITION_CUBE)
 
         self.animation.delete('left_spring')
         self.animation.delete('right_spring')
         self.animation.delete('table')
         self.animation.delete('cube')
-        self.table.center_mass_position = function
-        self.coords_chart.append(self.chart.convert_coords(self.app_time, function, 1))
-        self.app_time += self.save_delta
+
+        # положение куба:
+        self.table.center_mass_position = self.function
+
+        # добавление в список следующей пары координат:
+        self.coords_chart.append(self.chart.convert_coords(self.app_time, self.function, 1))
+        self.app_time += delta
 
     def information_canvas(self):
         """
@@ -184,22 +205,59 @@ class App(TkinterApp):
         exit_btn = ttk.Button(self.settings_window, text=f'Выход', command=self.button_close_program)
         exit_btn.place(x=2 * delta, y=height + 3.5 * delta)
 
-        update_btn = ttk.Button(self.settings_window, text=f'Сбросить')
+        update_btn = ttk.Button(self.settings_window, text=f'Сбросить', command=self.button_update_process)
         update_btn.place(x=7 * delta, y=height + 3.5 * delta)
 
-        start_btn = ttk.Button(self.window_chart, text=f'Start')
+        start_btn = ttk.Button(self.window_chart, text=f'Start', command=self.button_start_process)
         start_btn.place(x=380, y=424)
 
         stop_btn = ttk.Button(self.window_chart, text=f'Stop', command=self.button_stop_process)
         stop_btn.place(x=550, y=424)
 
     def button_stop_process(self):
-        self.save_delta = 0
+        self._phys_flag = False
+
+    def button_update_process(self):
+        """
+        Сброс текущего состояния приложения
+        """
+        # Удаление объектов текущего состояния с анимации:
+        self.animation.delete('left_spring')
+        self.animation.delete('right_spring')
+        # self.animation.delete('table')
+        self.animation.delete('cube')
+
+        # Удаление графика текущего состояния (и осей координат):
+        self.window_chart.delete(*self.window_chart.find_all())
+
+        # Отрисовка осей:
+        self.draw_chart_axes()
+
+        # Обновление времени приложения:
+        self.app_time = 0
+
+        # Очистка списка координат:
+        self.coords_chart = []
+
+        # Приведение положения кубика к начальному состоянию:
+        self.table.center_mass_position = START_POSITION_CUBE
+
+    def button_start_process(self):
+        """
+        Начать процесс (начать работу приложения)
+        """
+        self._phys_flag = True
 
     def button_close_program(self):
+        """
+        Закрыть приложение
+        """
         self.root.destroy()
 
-    def draw_chart(self):
+    def draw_chart_axes(self):
+        """
+        Отрисока осей коордиант
+        """
         self.window_chart.create_line(0, self.chart_opts['height'] // 2,
                                       self.chart_opts['width'], self.chart_opts['height'] // 2,
                                       fill='white', arrow=tk.LAST, arrowshape=(10, 20, 5))
@@ -212,7 +270,7 @@ class App(TkinterApp):
         Сброс расчёта. Начальное состояние программы.
         """
         self.window_chart.delete("all")
-        self.draw_chart()
+        self.draw_chart_axes()
 
     def read_data_json_file(self):
         """

@@ -56,7 +56,7 @@ class Cube:
 class Table:
     objects_data = {}
 
-    def __init__(self, width, canvas, cube_center_mass_pos=0):
+    def __init__(self, width, canvas, cube_center_mass_pos):
         """
         Стол
 
@@ -68,7 +68,7 @@ class Table:
         self.canvas_width = int(canvas["width"])
         self.canvas_height = int(canvas["height"])
 
-        self.__center_mass_position = cube_center_mass_pos
+        self.__center_mass_position = self.canvas_width // 2 + cube_center_mass_pos
 
     def add_obj(self, additional_object: Spring or Cube):
         if isinstance(additional_object, Cube):
@@ -135,7 +135,8 @@ class App(TkinterApp):
         self.canvas.pack()
 
         # создание объетов
-        self.table = Table(520, self.canvas)
+        self.start_pos_cube = -400
+        self.table = Table(520, self.canvas, self.start_pos_cube)
 
         self.cube_len = 90
         self.cube = Cube(self.cube_len)
@@ -151,7 +152,7 @@ class App(TkinterApp):
         self.canvas.delete('spring')
         self.canvas.delete('table')
         self.canvas.delete('cube')
-        self.table.center_mass_position = 200 * sin(self.app_time / 10)  # / 50 чтоб снизить скорость
+        self.table.center_mass_position = 200 * sin(self.app_time / 10 - self.start_pos_cube)
         self.app_time += delta
 
     def _draw(self):
