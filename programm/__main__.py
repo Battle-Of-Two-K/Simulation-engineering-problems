@@ -10,7 +10,7 @@ from tkinter_app_pattern import TkinterApp
 
 # Константы:
 PENDULUM_AMPLITUDE = 200  # амплитуда матяника
-START_POSITION_CUBE = -200  # начальное положение куба
+START_POSITION_CUBE = -250  # начальное положение куба
 SPRING_SHAPE = 10, 20  # 10 - кол-во витков, 20 - диаметр
 CUBE_LENGTH = 80  # длина ребра куба
 TABLE_WIDTH = 520  # ширина стола
@@ -89,6 +89,8 @@ class App(TkinterApp):
 
     app_time = 0  # время приложения
     coords_chart = []
+    coords_chart_two = []
+    coords_chart_three = []
 
     def _ready(self):
         ROOT_SIZE = "1182x724+300+100"
@@ -155,10 +157,14 @@ class App(TkinterApp):
         if len(self.coords_chart) > 2:
             # Отрисовка графика:
             self.window_chart.create_line(*self.coords_chart, fill='#FFB54F', width=2)
+            self.window_chart.create_line(*self.coords_chart_two, fill='#FF6A54', dash=(4, 2))
+            self.window_chart.create_line(*self.coords_chart_three, fill='#FF6A54', dash=(4, 2))
             del self.coords_chart[0]  # удаление "отработавших" координат из списка
 
     def _physics_process(self, delta):
-        self.function = PENDULUM_AMPLITUDE * e ** (-self.app_time / 100) * sin(self.app_time / 10 - START_POSITION_CUBE)
+        self.function = PENDULUM_AMPLITUDE * e ** (-self.app_time / 250) * sin(self.app_time / 10 - START_POSITION_CUBE)
+        self.function_two = PENDULUM_AMPLITUDE * e ** (-self.app_time / 250)
+        self.function_three = -PENDULUM_AMPLITUDE * e ** (-self.app_time / 250)
 
         self.animation.delete('left_spring')
         self.animation.delete('right_spring')
@@ -170,6 +176,8 @@ class App(TkinterApp):
 
         # добавление в список следующей пары координат:
         self.coords_chart.append(self.chart.convert_coords(self.app_time, self.function, 1))
+        self.coords_chart_two.append(self.chart.convert_coords(self.app_time, self.function_two, 1))
+        self.coords_chart_three.append(self.chart.convert_coords(self.app_time, self.function_three, 1))
         self.app_time += delta
 
     def information_canvas(self):
@@ -301,6 +309,8 @@ class App(TkinterApp):
 
         # Очистка списка координат:
         self.coords_chart = []
+        self.coords_chart_two = []
+        self.coords_chart_three = []
 
         # Приведение положения кубика к начальному состоянию:
         self.table.center_mass_position = START_POSITION_CUBE
