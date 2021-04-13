@@ -137,12 +137,12 @@ class App(TkinterApp):
         # Отрисовка левой пружины:
         self.animation.create_line(*self.left_spring.create_coords(self.table.create_coords_mesh_left_spring()[0],
                                                                    self.table.create_coords_mesh_left_spring()[1]),
-                                   fill='#FCEAC6', tags=("left_spring",))
+                                   fill='#FFB54F', tags=("left_spring",))
 
         # Отрисовка правой пружины:
         self.animation.create_line(*self.right_spring.create_coords(self.table.create_coords_mesh_right_spring()[0],
                                                                    self.table.create_coords_mesh_right_spring()[1]),
-                                   fill='#FCEAC6', tags=("right_spring",))
+                                   fill='#FFB54F', tags=("right_spring",))
 
         # Отрисовка кубика:
         self.animation.create_rectangle(self.table.center_mass_position - CUBE_LENGTH // 2,
@@ -154,7 +154,7 @@ class App(TkinterApp):
         # Условие начала отрисовки графика:
         if len(self.coords_chart) > 2:
             # Отрисовка графика:
-            self.window_chart.create_line(*self.coords_chart, fill='#5188BA', width=2)
+            self.window_chart.create_line(*self.coords_chart, fill='#FFB54F', width=2)
             del self.coords_chart[0]  # удаление "отработавших" координат из списка
 
     def _physics_process(self, delta):
