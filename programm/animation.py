@@ -3,6 +3,21 @@ from tkinter_app_pattern import TkinterApp
 from math import sin
 
 
+class Chart:
+    def __init__(self, canvas):
+        self.canvas = canvas
+        self.canvas_width = int(self.canvas["width"])
+        self.canvas_height = int(self.canvas["height"])
+
+    def convert_coords(self, time, cube_position_x, chart_factor):
+        if cube_position_x > 0:
+            return self.canvas.coords(self.canvas.find_all()[1])[0] + time * chart_factor, \
+                   self.canvas.coords(self.canvas.find_all()[0])[1] - cube_position_x * chart_factor
+        elif cube_position_x < 0:
+            return self.canvas.coords(self.canvas.find_all()[1])[0] + time * chart_factor, \
+                   self.canvas.coords(self.canvas.find_all()[0])[1] + abs(cube_position_x) * chart_factor
+
+
 class Spring:
     def __init__(self, amount_turns: int, diameter: int or float):
         """

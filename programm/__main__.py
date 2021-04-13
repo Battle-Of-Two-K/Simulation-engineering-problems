@@ -1,17 +1,26 @@
 import os
 import json
 import logging
-from chart import Chart
 from animation import *
 from math import sin, e
 import tkinter.ttk as ttk
 from tkinter import filedialog
 from tkinter_app_pattern import TkinterApp
 
+
+# Константы:
 PENDULUM_AMPLITUDE = 200  # амплитуда матяника
 START_POSITION_CUBE = -200  # начальное положение куба
 SPRING_SHAPE = 10, 20  # 10 - кол-во витков, 20 - диаметр
 CUBE_LENGTH = 80  # длина ребра куба
+TABLE_WIDTH = 520  # ширина стола
+
+PLACE_WIN_ANIMATION = 0, 0
+PLACE_SET_WINDOW = 720, 0
+PLACE_CHART_WINDOW = 0, 240
+ARROW_SHAPE = 10, 20, 5
+ORDINATE_POSITION = 50
+
 
 # строчка, позволяет не выводить лишние данные (они нужны только разработчику):
 logging.basicConfig(level=logging.ERROR)
@@ -92,14 +101,14 @@ class App(TkinterApp):
 
         # Рамка с информацией о задаче:
         self.settings_window = tk.Frame(self.root, **self.settings_window_opts)
-        self.settings_window.place(x=720, y=0)
+        self.settings_window.place(x=PLACE_SET_WINDOW[0], y=PLACE_SET_WINDOW[1])
 
         # Полотно с анимацией маятника:
         self.animation = tk.Canvas(self.root, **self.animation_opts)
-        self.animation.place(x=0, y=0)
+        self.animation.place(x=PLACE_WIN_ANIMATION[0], y=PLACE_WIN_ANIMATION[1])
 
         # Создание объектов
-        self.table = Table(520, self.animation, START_POSITION_CUBE)  # стол
+        self.table = Table(TABLE_WIDTH, self.animation, START_POSITION_CUBE)  # стол
         self.cube = Cube(CUBE_LENGTH)  # кубик
         self.left_spring = Spring(*SPRING_SHAPE)  # левая пружина
         self.right_spring = Spring(*SPRING_SHAPE)  # правая пружина
@@ -111,11 +120,11 @@ class App(TkinterApp):
 
         # Полотно с графиком:
         self.window_chart = tk.Canvas(self.root, **self.chart_opts)
-        self.window_chart.place(x=0, y=240)
+        self.window_chart.place(x=PLACE_CHART_WINDOW[0], y=PLACE_CHART_WINDOW[1])
 
         self.draw_chart_axes()  # отрисовка осей координат
 
-        self.chart = Chart(self.window_chart, 0, 0)  # создание графика:
+        self.chart = Chart(self.window_chart)  # создание графика
 
         self.information_canvas()  # вывод считанной информации с файла на рамку
 
@@ -145,7 +154,7 @@ class App(TkinterApp):
         # Условие начала отрисовки графика:
         if len(self.coords_chart) > 2:
             # Отрисовка графика:
-            self.window_chart.create_line(*self.coords_chart, fill='#5188BA')
+            self.window_chart.create_line(*self.coords_chart, fill='#5188BA', width=2)
             del self.coords_chart[0]  # удаление "отработавших" координат из списка
 
     def _physics_process(self, delta):
@@ -314,10 +323,10 @@ class App(TkinterApp):
         """
         self.window_chart.create_line(0, self.chart_opts['height'] // 2,
                                       self.chart_opts['width'], self.chart_opts['height'] // 2,
-                                      fill='white', arrow=tk.LAST, arrowshape=(10, 20, 5))
+                                      fill='white', arrow=tk.LAST, arrowshape=ARROW_SHAPE)
 
-        self.window_chart.create_line(50, self.chart_opts['height'], 50, 0,
-                                      fill='white', arrow=tk.LAST, arrowshape=(10, 20, 5))
+        self.window_chart.create_line(ORDINATE_POSITION, self.chart_opts['height'], ORDINATE_POSITION, 0,
+                                      fill='white', arrow=tk.LAST, arrowshape=ARROW_SHAPE)
 
     def discard(self):
         """
