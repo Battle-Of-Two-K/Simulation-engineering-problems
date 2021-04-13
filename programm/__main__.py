@@ -28,6 +28,20 @@ def find(name):
     return os.path.exists(name)
 
 
+def button_app_style():
+    style = ttk.Style()
+    style.theme_use('clam')
+    style.configure('TButton', background='#2B2E35',
+                    foreground='#FF6A54', width=10,
+                    borderwidth=1, focusthickness=2,
+                    relief='sunken',
+                    focuscolor='#2B2E30',
+                    font=('Comic Sans MS', 16, 'italic'))
+
+    style.map('TButton', foreground=[('pressed', 'red'), ('active', '#FF6A54')],
+              background=[('pressed', '!disabled', '#FCEAC6'), ('active', '#4B505C')])
+
+
 class App(TkinterApp):
     FRAME_COLOR = '#FCEAC6'
     chart_opts = {
@@ -135,7 +149,6 @@ class App(TkinterApp):
             del self.coords_chart[0]  # удаление "отработавших" координат из списка
 
     def _physics_process(self, delta):
-
         self.function = PENDULUM_AMPLITUDE * e ** (-self.app_time / 100) * sin(self.app_time / 10 - START_POSITION_CUBE)
 
         self.animation.delete('left_spring')
@@ -152,15 +165,40 @@ class App(TkinterApp):
 
     def information_canvas(self):
         """
-        Вывод информации о задаче + вывод кнопок на полотно
+        Вывод информации о задаче + вывод кнопок на полотно.
+        Изначально метод получился слишком большим. Для простоты восприятия
+        кода данный метод рыл разбит на несколько методов.
+        Расположение данных и кнопок зависит от величин height, delta, abscissa,
+        которые изменяются по мере заполнения данных.
         """
+        # Величины, от к-х зависит расположение данных на окне:
         height, delta = 50, 35
         abscissa = 5
 
+        # Заголовок:
         tk.Label(self.settings_window, text='Задача №2. Вариант 59', font=('Comic Sans MS', 18, "bold"),
                  bg='#2B2E35', fg='#5188BA').place(x=80, y=10)
 
-        # Первый блок данных
+        # Первый блок данных:
+        height, delta, abscissa = self.print_input_data(height, delta, abscissa)
+
+        # Второй блок данных:
+        height, delta, abscissa = self.print_add_conditions(height, delta, abscissa)
+
+        # Третий блок данных:
+        height, delta, abscissa = self.print_special_conditions(height, delta, abscissa)
+
+        # Кнопки:
+        self.output_buttons(height, delta)
+
+    def print_input_data(self, height, delta, abscissa):
+        """
+        Вывод входных данных
+        Args:
+            height: величина, влияющая на расположение данных на окне
+            delta: величина, влияющая на расположение данных на окне
+            abscissa: величина, влияющая на расположение данных на окне
+        """
         tk.Label(self.settings_window, text="1.Входные данные:", font=('Comic Sans MS', 16, "bold"),
                  bg='#2B2E35', fg='#FFB54F').place(x=abscissa, y=height)
 
@@ -169,7 +207,16 @@ class App(TkinterApp):
                 x=abscissa, y=height + delta)
             height += delta
 
-        # Второй блок данных
+        return height, delta, abscissa
+
+    def print_add_conditions(self, height, delta, abscissa):
+        """
+        Вывод доплонтительных условий
+        Args:
+            height: величина, влияющая на расположение данных на окне
+            delta: величина, влияющая на расположение данных на окне
+            abscissa: величина, влияющая на расположение данных на окне
+        """
         tk.Label(self.settings_window, text="2.Дополнительные условия:", font=('Comic Sans MS', 16, "bold"),
                  bg='#2B2E35', fg='#FFB54F').place(
             x=abscissa, y=height + delta)
@@ -179,7 +226,16 @@ class App(TkinterApp):
                 x=abscissa, y=height + 2 * delta)
             height += delta
 
-        # Третий блок данных
+        return height, delta, abscissa
+
+    def print_special_conditions(self, height, delta, abscissa):
+        """
+        Вывод особых условий
+        Args:
+            height: величина, влияющая на расположение данных на окне
+            delta: величина, влияющая на расположение данных на окне
+            abscissa: величина, влияющая на расположение данных на окне
+        """
         tk.Label(self.settings_window, text="3.Особые условия:", font=('Comic Sans MS', 16, "bold"),
                  bg='#2B2E35', fg='#FFB54F').place(
             x=abscissa, y=height + 2 * delta)
@@ -189,18 +245,16 @@ class App(TkinterApp):
                 x=abscissa, y=height + 3 * delta)
             height += delta
 
-        # Кнопки
-        style = ttk.Style()
-        style.theme_use('clam')
-        style.configure('TButton', background='#2B2E35',
-                        foreground='#FF6A54', width=10,
-                        borderwidth=1, focusthickness=2,
-                        relief='sunken',
-                        focuscolor='#2B2E30',
-                        font=('Comic Sans MS', 16, 'italic'))
+        return height, delta, abscissa
 
-        style.map('TButton', foreground=[('pressed', 'red'), ('active', '#FF6A54')],
-                  background=[('pressed', '!disabled', '#FCEAC6'), ('active', '#4B505C')])
+    def output_buttons(self, height, delta):
+        """
+        Создание кнопок
+        Args:
+            height: величина, влияющая на расположение кнопки на окне
+            delta: величина, влияющая на расположение кнопки на окне
+        """
+        button_app_style()  # установка стиля кнопок
 
         exit_btn = ttk.Button(self.settings_window, text=f'Выход', command=self.button_close_program)
         exit_btn.place(x=2 * delta, y=height + 3.5 * delta)
