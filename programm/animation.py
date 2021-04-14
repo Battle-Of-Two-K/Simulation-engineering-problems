@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter_app_pattern import TkinterApp
-from math import sin
+from math import sin, e
 
 
 class Chart:
@@ -42,7 +42,7 @@ class Spring:
                       (start_coord[0] + distance_turns, start_coord[1] - self.diameter // 2)
                 distance_turns += plus
         else:
-            print("Ордината начала и ордината конца должны совпадать")
+            print("Ордината начала и ордината конца должны совпадать!\nКуб не м/б за пределами стола!")
 
     @property
     def amount_turns(self):

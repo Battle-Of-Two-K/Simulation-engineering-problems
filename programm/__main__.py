@@ -2,25 +2,27 @@ import os
 import json
 import logging
 from animation import *
-from math import sin, e
+from math import sin, e, cos
 import tkinter.ttk as ttk
 from tkinter import filedialog
 from tkinter_app_pattern import TkinterApp
 
-
 # Константы:
-PENDULUM_AMPLITUDE = 200  # амплитуда матяника
-START_POSITION_CUBE = -250  # начальное положение куба
+PENDULUM_AMPLITUDE = 150  # амплитуда матяника
+START_POSITION_CUBE = -150  # начальное положение куба
 SPRING_SHAPE = 10, 20  # 10 - кол-во витков, 20 - диаметр
 CUBE_LENGTH = 80  # длина ребра куба
 TABLE_WIDTH = 520  # ширина стола
 
+ROOT_SIZE = "1182x724+300+100"
 PLACE_WIN_ANIMATION = 0, 0
 PLACE_SET_WINDOW = 720, 0
 PLACE_CHART_WINDOW = 0, 240
 ARROW_SHAPE = 10, 20, 5
 ORDINATE_POSITION = 50
-
+OUTSIDE_CANVAS = -50, -50, -50, -50
+DASH = 4, 2
+CHART_STOP_POINT = 700
 
 # строчка, позволяет не выводить лишние данные (они нужны только разработчику):
 logging.basicConfig(level=logging.ERROR)
@@ -93,8 +95,6 @@ class App(TkinterApp):
     coords_chart_three = []
 
     def _ready(self):
-        ROOT_SIZE = "1182x724+300+100"
-
         # Считываем информацию с файла:
         self.read_data_json_file()
 
@@ -130,6 +130,10 @@ class App(TkinterApp):
 
         self.information_canvas()  # вывод считанной информации с файла на рамку
 
+        self.main_chart_id = self.window_chart.create_line(OUTSIDE_CANVAS, fill='#FFB54F', width=2)
+        self.add_line_up_id = self.window_chart.create_line(OUTSIDE_CANVAS, fill='#FF6A54', dash=DASH)
+        self.add_line_down_id = self.window_chart.create_line(OUTSIDE_CANVAS, fill='#FF6A54', dash=DASH)
+
         self._phys_flag = False  # не запускать процесс (работу приложения)
 
     def _draw(self):
@@ -143,7 +147,7 @@ class App(TkinterApp):
 
         # Отрисовка правой пружины:
         self.animation.create_line(*self.right_spring.create_coords(self.table.create_coords_mesh_right_spring()[0],
-                                                                   self.table.create_coords_mesh_right_spring()[1]),
+                                                                    self.table.create_coords_mesh_right_spring()[1]),
                                    fill='#FFB54F', tags=("right_spring",))
 
         # Отрисовка кубика:
@@ -156,15 +160,17 @@ class App(TkinterApp):
         # Условие начала отрисовки графика:
         if len(self.coords_chart) > 2:
             # Отрисовка графика:
-            self.window_chart.create_line(*self.coords_chart, fill='#FFB54F', width=2)
-            self.window_chart.create_line(*self.coords_chart_two, fill='#FF6A54', dash=(4, 2))
-            self.window_chart.create_line(*self.coords_chart_three, fill='#FF6A54', dash=(4, 2))
-            del self.coords_chart[0]  # удаление "отработавших" координат из списка
+            self.window_chart.coords(self.main_chart_id, *self._flatten(self.coords_chart))
+            self.window_chart.coords(self.add_line_up_id, *self._flatten(self.coords_chart_two))
+            self.window_chart.coords(self.add_line_down_id, *self._flatten(self.coords_chart_three))
 
     def _physics_process(self, delta):
-        self.function = PENDULUM_AMPLITUDE * e ** (-self.app_time / 250) * sin(self.app_time / 10 - START_POSITION_CUBE)
-        self.function_two = PENDULUM_AMPLITUDE * e ** (-self.app_time / 250)
-        self.function_three = -PENDULUM_AMPLITUDE * e ** (-self.app_time / 250)
+        damping_factor = e ** (-self.app_time / 250)  # коэффициент затухания
+
+        self.function = PENDULUM_AMPLITUDE * damping_factor * (sin((self.app_time / 10) - START_POSITION_CUBE))
+
+        self.function_two = PENDULUM_AMPLITUDE * damping_factor
+        self.function_three = -PENDULUM_AMPLITUDE * damping_factor
 
         self.animation.delete('left_spring')
         self.animation.delete('right_spring')
@@ -179,6 +185,11 @@ class App(TkinterApp):
         self.coords_chart_two.append(self.chart.convert_coords(self.app_time, self.function_two, 1))
         self.coords_chart_three.append(self.chart.convert_coords(self.app_time, self.function_three, 1))
         self.app_time += delta
+
+        if self.coords_chart[-1][0] < CHART_STOP_POINT:
+            self._phys_flag = True
+        else:
+            self._phys_flag = False
 
     def information_canvas(self):
         """
@@ -383,6 +394,17 @@ class App(TkinterApp):
                     print(f"   - {step}")
             else:
                 print(f"    {key}: {value}\n")
+
+    @staticmethod
+    def _flatten(seq):
+        """Internal function."""
+        res = ()
+        for item in seq:
+            if isinstance(item, (tuple, list)):
+                res = res + App._flatten(item)
+            elif item is not None:
+                res = res + (item,)
+        return res
 
 
 if __name__ == '__main__':
