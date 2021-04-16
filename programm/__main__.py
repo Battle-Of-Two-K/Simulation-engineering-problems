@@ -1,6 +1,7 @@
 import os
 import json
 import logging
+from sympy import *
 from animation import *
 from math import sin, e, cos
 import tkinter.ttk as ttk
@@ -95,6 +96,8 @@ class App(TkinterApp):
     coords_chart_three = []
 
     def _ready(self):
+        print(self.equation_for_normal_conditions())
+        pprint(self.equation_for_normal_conditions())
         # Считываем информацию с файла:
         self.read_data_json_file()
 
@@ -163,6 +166,14 @@ class App(TkinterApp):
             self.window_chart.coords(self.main_chart_id, *self._flatten(self.coords_chart))
             self.window_chart.coords(self.add_line_up_id, *self._flatten(self.coords_chart_two))
             self.window_chart.coords(self.add_line_down_id, *self._flatten(self.coords_chart_three))
+
+    @staticmethod
+    def equation_for_normal_conditions():
+        t = Symbol('t')
+        a = Symbol('a')
+        x = Function('x')
+        func = Eq(x(t).diff(t, t) + 10 * x(t).diff(t) + 2 * x(t) + a)
+        return dsolve(func, x(t))
 
     def _physics_process(self, delta):
         damping_factor = e ** (-self.app_time / 250)  # коэффициент затухания
