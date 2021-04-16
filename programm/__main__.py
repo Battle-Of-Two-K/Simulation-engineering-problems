@@ -1,15 +1,14 @@
 import os
 import json
 import logging
-from sympy import *
 from animation import *
-from math import sin, e, cos
+from math import sin, e
 import tkinter.ttk as ttk
 from tkinter import filedialog
 from tkinter_app_pattern import TkinterApp
 
 # Константы:
-PENDULUM_AMPLITUDE = 150  # амплитуда матяника
+PENDULUM_AMPLITUDE = 200  # амплитуда маятника
 START_POSITION_CUBE = -150  # начальное положение куба
 SPRING_SHAPE = 10, 20  # 10 - кол-во витков, 20 - диаметр
 CUBE_LENGTH = 80  # длина ребра куба
@@ -96,8 +95,6 @@ class App(TkinterApp):
     coords_chart_three = []
 
     def _ready(self):
-        print(self.equation_for_normal_conditions())
-        pprint(self.equation_for_normal_conditions())
         # Считываем информацию с файла:
         self.read_data_json_file()
 
@@ -166,14 +163,6 @@ class App(TkinterApp):
             self.window_chart.coords(self.main_chart_id, *self._flatten(self.coords_chart))
             self.window_chart.coords(self.add_line_up_id, *self._flatten(self.coords_chart_two))
             self.window_chart.coords(self.add_line_down_id, *self._flatten(self.coords_chart_three))
-
-    @staticmethod
-    def equation_for_normal_conditions():
-        t = Symbol('t')
-        a = Symbol('a')
-        x = Function('x')
-        func = Eq(x(t).diff(t, t) + 10 * x(t).diff(t) + 2 * x(t) + a)
-        return dsolve(func, x(t))
 
     def _physics_process(self, delta):
         damping_factor = e ** (-self.app_time / 250)  # коэффициент затухания
@@ -250,7 +239,7 @@ class App(TkinterApp):
 
     def print_add_conditions(self, height, delta, abscissa):
         """
-        Вывод доплонтительных условий
+        Вывод дополнительных условий
         Args:
             height: величина, влияющая на расположение данных на окне
             delta: величина, влияющая на расположение данных на окне
@@ -321,7 +310,9 @@ class App(TkinterApp):
         self.animation.delete('cube')
 
         # Удаление графика текущего состояния (и осей координат):
-        self.window_chart.delete(*self.window_chart.find_all())
+        self.window_chart.delete(self.main_chart_id)
+        self.window_chart.delete(self.add_line_up_id)
+        self.window_chart.delete(self.add_line_down_id)
 
         # Отрисовка осей:
         self.draw_chart_axes()
@@ -337,6 +328,10 @@ class App(TkinterApp):
         # Приведение положения кубика к начальному состоянию:
         self.table.center_mass_position = START_POSITION_CUBE
 
+        self.main_chart_id = self.window_chart.create_line(OUTSIDE_CANVAS, fill='#FFB54F', width=2)
+        self.add_line_up_id = self.window_chart.create_line(OUTSIDE_CANVAS, fill='#FF6A54', dash=DASH)
+        self.add_line_down_id = self.window_chart.create_line(OUTSIDE_CANVAS, fill='#FF6A54', dash=DASH)
+
     def button_start_process(self):
         """
         Начать процесс (начать работу приложения)
@@ -351,7 +346,7 @@ class App(TkinterApp):
 
     def draw_chart_axes(self):
         """
-        Отрисока осей коордиант
+        Отрисовка осей координат
         """
         self.window_chart.create_line(0, self.chart_opts['height'] // 2,
                                       self.chart_opts['width'], self.chart_opts['height'] // 2,
