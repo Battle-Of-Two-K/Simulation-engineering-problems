@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter_app_pattern import TkinterApp
-from math import sin, e
+from math import sin
 
 
 class Chart:
@@ -149,8 +149,8 @@ class App(TkinterApp):
         self.canvas = tk.Canvas(self.root, **self.canvas_opts)
         self.canvas.pack()
 
-        # создание объетов
-        self.start_pos_cube = -400
+        # создание объектов
+        self.start_pos_cube = 0
         self.table = Table(520, self.canvas, self.start_pos_cube)
 
         self.cube_len = 90

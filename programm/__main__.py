@@ -8,7 +8,7 @@ from tkinter import filedialog
 from tkinter_app_pattern import TkinterApp
 
 # Константы:
-PENDULUM_AMPLITUDE = 200  # амплитуда маятника
+PENDULUM_AMPLITUDE = 210  # амплитуда маятника
 START_POSITION_CUBE = -150  # начальное положение куба
 SPRING_SHAPE = 10, 20  # 10 - кол-во витков, 20 - диаметр
 CUBE_LENGTH = 80  # длина ребра куба
@@ -99,6 +99,7 @@ class App(TkinterApp):
         self.read_data_json_file()
 
         self.root.geometry(ROOT_SIZE)
+        self.root.title("Лабораторная работа по МИЗу. Подготовил: Коновалов Ф.Д., группа М1О-302С")
         self.root.resizable(width=False, height=False)  # неизменный размер окна
 
         # Рамка с информацией о задаче:
@@ -165,7 +166,7 @@ class App(TkinterApp):
             self.window_chart.coords(self.add_line_down_id, *self._flatten(self.coords_chart_three))
 
     def _physics_process(self, delta):
-        damping_factor = e ** (-self.app_time / 250)  # коэффициент затухания
+        damping_factor = e ** (-self.app_time / 350)  # коэффициент затухания
 
         self.function = PENDULUM_AMPLITUDE * damping_factor * (sin((self.app_time / 10) - START_POSITION_CUBE))
 
@@ -231,7 +232,7 @@ class App(TkinterApp):
                  bg='#2B2E35', fg='#FFB54F').place(x=abscissa, y=height)
 
         for key, value in self.task_data["Входные данные"].items():
-            tk.Label(self.settings_window, text=f'  {key}: {value} мм', **self.text_param).place(
+            tk.Label(self.settings_window, text=f'  {key}: {value}', **self.text_param).place(
                 x=abscissa, y=height + delta)
             height += delta
 
