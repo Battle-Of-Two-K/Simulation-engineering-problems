@@ -71,7 +71,7 @@ class Cube:
 class Table:
     objects_data = {}
 
-    def __init__(self, width, canvas, cube_center_mass_pos):
+    def __init__(self, canvas, cube_center_mass_pos):
         """
         Стол
 
@@ -79,7 +79,6 @@ class Table:
             width: ширина стола
             canvas: полотно, на котором отобразится стол
         """
-        self.__width = width
         self.canvas_width = int(canvas["width"])
         self.canvas_height = int(canvas["height"])
 

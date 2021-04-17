@@ -2,17 +2,17 @@ import os
 import json
 import logging
 from animation import *
-from math import sin, e
+from math import sin, e, cos
 import tkinter.ttk as ttk
 from tkinter import filedialog
+from equation import DiffEqSecKind
 from tkinter_app_pattern import TkinterApp
 
 # Константы:
 PENDULUM_AMPLITUDE = 210  # амплитуда маятника
-START_POSITION_CUBE = -150  # начальное положение куба
+START_POSITION_CUBE = 150  # начальное положение куба
 SPRING_SHAPE = 10, 20  # 10 - кол-во витков, 20 - диаметр
 CUBE_LENGTH = 80  # длина ребра куба
-TABLE_WIDTH = 520  # ширина стола
 
 ROOT_SIZE = "1182x724+300+100"
 PLACE_WIN_ANIMATION = 0, 0
@@ -94,6 +94,9 @@ class App(TkinterApp):
     coords_chart_two = []
     coords_chart_three = []
 
+    chart_factor = 2
+    time_factor = 100
+
     def _ready(self):
         # Считываем информацию с файла:
         self.read_data_json_file()
@@ -111,7 +114,7 @@ class App(TkinterApp):
         self.animation.place(x=PLACE_WIN_ANIMATION[0], y=PLACE_WIN_ANIMATION[1])
 
         # Создание объектов
-        self.table = Table(TABLE_WIDTH, self.animation, START_POSITION_CUBE)  # стол
+        self.table = Table(self.animation, START_POSITION_CUBE)  # стол
         self.cube = Cube(CUBE_LENGTH)  # кубик
         self.left_spring = Spring(*SPRING_SHAPE)  # левая пружина
         self.right_spring = Spring(*SPRING_SHAPE)  # правая пружина
@@ -165,13 +168,27 @@ class App(TkinterApp):
             self.window_chart.coords(self.add_line_up_id, *self._flatten(self.coords_chart_two))
             self.window_chart.coords(self.add_line_down_id, *self._flatten(self.coords_chart_three))
 
+    def create_equation_motion(self, time_factor):
+        self.equation = DiffEqSecKind(5, 10, 0)
+        eq_roots = self.equation.solve_characteristic_equation()
+
+        if isinstance(eq_roots[0], complex) or isinstance(eq_roots[1], complex):
+            return (e ** (eq_roots[0].real * self.app_time / time_factor)) * \
+                   (100 * cos(eq_roots[0].imag * self.app_time / time_factor) +
+                    50 * sin(eq_roots[0].imag * self.app_time / time_factor)) \
+                   + self.equation.particular_solution_equation()
+
+        elif isinstance(eq_roots[0], float or int) or isinstance(eq_roots[1], float or int):
+            return (100 * e ** (eq_roots[0] * self.app_time / time_factor) +
+                    50 * e ** (eq_roots[1] * self.app_time / time_factor)) \
+                   + self.equation.particular_solution_equation()
+
+        else:
+            return (e ** (eq_roots[0] * self.app_time / time_factor) * (100 + 50 * self.app_time / time_factor)) \
+                   + self.equation.particular_solution_equation()
+
     def _physics_process(self, delta):
-        damping_factor = e ** (-self.app_time / 350)  # коэффициент затухания
-
-        self.function = PENDULUM_AMPLITUDE * damping_factor * (sin((self.app_time / 10) - START_POSITION_CUBE))
-
-        self.function_two = PENDULUM_AMPLITUDE * damping_factor
-        self.function_three = -PENDULUM_AMPLITUDE * damping_factor
+        self.function = self.create_equation_motion(self.time_factor)
 
         self.animation.delete('left_spring')
         self.animation.delete('right_spring')
@@ -182,9 +199,7 @@ class App(TkinterApp):
         self.table.center_mass_position = self.function
 
         # добавление в список следующей пары координат:
-        self.coords_chart.append(self.chart.convert_coords(self.app_time, self.function, 1))
-        self.coords_chart_two.append(self.chart.convert_coords(self.app_time, self.function_two, 1))
-        self.coords_chart_three.append(self.chart.convert_coords(self.app_time, self.function_three, 1))
+        self.coords_chart.append(self.chart.convert_coords(self.app_time, self.function, self.chart_factor))
         self.app_time += delta
 
         if self.coords_chart[-1][0] < CHART_STOP_POINT:
