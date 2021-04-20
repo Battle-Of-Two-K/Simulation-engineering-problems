@@ -22,6 +22,10 @@ ORDINATE_POSITION = 50
 OUTSIDE_CANVAS = -50, -50, -50, -50
 DASH = 4, 2
 CHART_STOP_POINT = 700
+EQUATION_PARAMETERS = (1, 10, 0, (START_POSITION_CUBE, 0))
+CHART_FACTOR = 1
+TIME_FACTOR = 50
+
 
 # строчка, позволяет не выводить лишние данные (они нужны только разработчику):
 logging.basicConfig(level=logging.ERROR)
@@ -93,8 +97,8 @@ class App(TkinterApp):
     coords_chart_two = []
     coords_chart_three = []
 
-    chart_factor = 1
-    time_factor = 100
+    chart_factor = CHART_FACTOR
+    time_factor = TIME_FACTOR
 
     def _ready(self):
         # Считываем информацию с файла:
@@ -168,7 +172,7 @@ class App(TkinterApp):
             # self.window_chart.coords(self.add_line_down_id, *self._flatten(self.coords_chart_three))
 
     def _physics_process(self, delta):
-        self.equation = DiffEqSecKind(10, 50, 0, (START_POSITION_CUBE, 0))
+        self.equation = DiffEqSecKind(*EQUATION_PARAMETERS)
         self.equation.create_equation(self.app_time, self.time_factor)
 
         self.function = self.equation.create_equation(self.app_time, self.time_factor)
