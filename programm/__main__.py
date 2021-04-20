@@ -2,7 +2,6 @@ import os
 import json
 import logging
 from animation import *
-from math import sin, e, cos
 import tkinter.ttk as ttk
 from tkinter import filedialog
 from equation import DiffEqSecKind
@@ -94,7 +93,7 @@ class App(TkinterApp):
     coords_chart_two = []
     coords_chart_three = []
 
-    chart_factor = 2
+    chart_factor = 1
     time_factor = 100
 
     def _ready(self):
@@ -165,30 +164,14 @@ class App(TkinterApp):
         if len(self.coords_chart) > 2:
             # Отрисовка графика:
             self.window_chart.coords(self.main_chart_id, *self._flatten(self.coords_chart))
-            self.window_chart.coords(self.add_line_up_id, *self._flatten(self.coords_chart_two))
-            self.window_chart.coords(self.add_line_down_id, *self._flatten(self.coords_chart_three))
-
-    def create_equation_motion(self, time_factor):
-        self.equation = DiffEqSecKind(5, 10, 0)
-        eq_roots = self.equation.solve_characteristic_equation()
-
-        if isinstance(eq_roots[0], complex) or isinstance(eq_roots[1], complex):
-            return (e ** (eq_roots[0].real * self.app_time / time_factor)) * \
-                   (100 * cos(eq_roots[0].imag * self.app_time / time_factor) +
-                    50 * sin(eq_roots[0].imag * self.app_time / time_factor)) \
-                   + self.equation.particular_solution_equation()
-
-        elif isinstance(eq_roots[0], float or int) or isinstance(eq_roots[1], float or int):
-            return (100 * e ** (eq_roots[0] * self.app_time / time_factor) +
-                    50 * e ** (eq_roots[1] * self.app_time / time_factor)) \
-                   + self.equation.particular_solution_equation()
-
-        else:
-            return (e ** (eq_roots[0] * self.app_time / time_factor) * (100 + 50 * self.app_time / time_factor)) \
-                   + self.equation.particular_solution_equation()
+            # self.window_chart.coords(self.add_line_up_id, *self._flatten(self.coords_chart_two))
+            # self.window_chart.coords(self.add_line_down_id, *self._flatten(self.coords_chart_three))
 
     def _physics_process(self, delta):
-        self.function = self.create_equation_motion(self.time_factor)
+        self.equation = DiffEqSecKind(10, 50, 0, (START_POSITION_CUBE, 0))
+        self.equation.create_equation(self.app_time, self.time_factor)
+
+        self.function = self.equation.create_equation(self.app_time, self.time_factor)
 
         self.animation.delete('left_spring')
         self.animation.delete('right_spring')
