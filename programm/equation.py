@@ -35,29 +35,30 @@ class DiffEqSecKind:
 
         # D = 0:
         if eq_roots[0] == eq_roots[1]:
-            C_1 = self.first_condition
+            C_1 = self.first_condition - self.particular_solution_equation()
             C_2 = self.second_condition - C_1 * eq_roots[0]
             return (e ** (eq_roots[0] * time / time_factor) * (C_1 + C_2 * time / time_factor)) + \
-                   self.particular_solution_equation()
+                self.particular_solution_equation()
 
         # D < 0:
         elif isinstance(eq_roots[0], complex) or isinstance(eq_roots[1], complex):
-            C_1 = self.first_condition
-            C_2 = self.second_condition - (eq_roots[0].real / eq_roots[0].imag) * C_1
+            C_1 = self.first_condition - self.particular_solution_equation()
+            C_2 = (self.second_condition - eq_roots[0].real * C_1) / eq_roots[0].imag
             return (e ** (eq_roots[0].real * time / time_factor)) * \
                    (C_1 * cos(eq_roots[0].imag * time / time_factor) +
                     C_2 * sin(eq_roots[0].imag * time / time_factor)) \
-                   + self.particular_solution_equation()
+                + self.particular_solution_equation()
 
         # D > 0:
         else:
-            C_1 = (self.first_condition - (1 * self.second_condition / eq_roots[1])) /\
-                  (1 - (eq_roots[0] * 1 / eq_roots[1]))
-            C_2 = (self.first_condition - C_1 * 1) / 1
+            C_1 = ((self.first_condition - self.particular_solution_equation()) -
+                   (1 * self.second_condition / eq_roots[1])) / (1 - (1 * eq_roots[0] / eq_roots[1]))
+
+            C_2 = (self.second_condition - eq_roots[0] * C_1) / eq_roots[1]
 
             return (C_1 * e ** (eq_roots[0] * time / time_factor) +
                     C_2 * e ** (eq_roots[1] * time / time_factor)) \
-                   + self.particular_solution_equation()
+                + self.particular_solution_equation()
 
     def solve_characteristic_equation(self):
         """

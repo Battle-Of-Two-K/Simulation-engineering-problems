@@ -22,7 +22,7 @@ ORDINATE_POSITION = 50
 OUTSIDE_CANVAS = -50, -50, -50, -50
 DASH = 4, 2
 CHART_STOP_POINT = 700
-EQUATION_PARAMETERS = (1, 10, 0, (START_POSITION_CUBE, 0))
+EQUATION_PARAMETERS = (1, 5, 0, (START_POSITION_CUBE, 0))
 CHART_FACTOR = 1
 TIME_FACTOR = 50
 
@@ -332,8 +332,6 @@ class App(TkinterApp):
         self.table.center_mass_position = START_POSITION_CUBE
 
         self.main_chart_id = self.window_chart.create_line(OUTSIDE_CANVAS, fill='#FFB54F', width=2)
-        self.add_line_up_id = self.window_chart.create_line(OUTSIDE_CANVAS, fill='#FF6A54', dash=DASH)
-        self.add_line_down_id = self.window_chart.create_line(OUTSIDE_CANVAS, fill='#FF6A54', dash=DASH)
 
     def button_start_process(self):
         """
