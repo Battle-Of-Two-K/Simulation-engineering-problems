@@ -91,11 +91,10 @@ class App(TkinterApp):
     }
 
     task_data = {}  # данные задачи
+    draw_stop_flag = 1
 
     app_time = 0  # время приложения
     coords_chart = []
-    coords_chart_two = []
-    coords_chart_three = []
 
     chart_factor = CHART_FACTOR
     time_factor = TIME_FACTOR
@@ -138,8 +137,6 @@ class App(TkinterApp):
         self.information_canvas()  # вывод считанной информации с файла на рамку
 
         self.main_chart_id = self.window_chart.create_line(OUTSIDE_CANVAS, fill='#FFB54F', width=2)
-        self.add_line_up_id = self.window_chart.create_line(OUTSIDE_CANVAS, fill='#FF6A54', dash=DASH)
-        self.add_line_down_id = self.window_chart.create_line(OUTSIDE_CANVAS, fill='#FF6A54', dash=DASH)
 
         self._phys_flag = False  # не запускать процесс (работу приложения)
 
@@ -168,8 +165,13 @@ class App(TkinterApp):
         if len(self.coords_chart) > 2:
             # Отрисовка графика:
             self.window_chart.coords(self.main_chart_id, *self._flatten(self.coords_chart))
-            # self.window_chart.coords(self.add_line_up_id, *self._flatten(self.coords_chart_two))
-            # self.window_chart.coords(self.add_line_down_id, *self._flatten(self.coords_chart_three))
+
+            if self.coords_chart[-1][0] < CHART_STOP_POINT:
+                self._phys_flag = True
+            else:
+                self._phys_flag = False
+                self._proc_flag = False
+                self._draw_flag = False
 
     def _physics_process(self, delta):
         self.equation = DiffEqSecKind(*EQUATION_PARAMETERS)
@@ -188,11 +190,6 @@ class App(TkinterApp):
         # добавление в список следующей пары координат:
         self.coords_chart.append(self.chart.convert_coords(self.app_time, self.function, self.chart_factor))
         self.app_time += delta
-
-        if self.coords_chart[-1][0] < CHART_STOP_POINT:
-            self._phys_flag = True
-        else:
-            self._phys_flag = False
 
     def information_canvas(self):
         """
@@ -301,6 +298,8 @@ class App(TkinterApp):
 
     def button_stop_process(self):
         self._phys_flag = False
+        self._proc_flag = False
+        self._draw_flag = False
 
     def button_update_process(self):
         """
@@ -314,8 +313,6 @@ class App(TkinterApp):
 
         # Удаление графика текущего состояния (и осей координат):
         self.window_chart.delete(self.main_chart_id)
-        self.window_chart.delete(self.add_line_up_id)
-        self.window_chart.delete(self.add_line_down_id)
 
         # Отрисовка осей:
         self.draw_chart_axes()
@@ -325,11 +322,13 @@ class App(TkinterApp):
 
         # Очистка списка координат:
         self.coords_chart = []
-        self.coords_chart_two = []
-        self.coords_chart_three = []
 
         # Приведение положения кубика к начальному состоянию:
         self.table.center_mass_position = START_POSITION_CUBE
+
+        self.draw_stop_flag = 1
+        self._phys_flag = True
+        self._draw_flag = True
 
         self.main_chart_id = self.window_chart.create_line(OUTSIDE_CANVAS, fill='#FFB54F', width=2)
 
@@ -338,6 +337,8 @@ class App(TkinterApp):
         Начать процесс (начать работу приложения)
         """
         self._phys_flag = True
+        self._draw_flag = True
+        self.draw_stop_flag = 1
 
     def button_close_program(self):
         """

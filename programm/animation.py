@@ -76,7 +76,6 @@ class Table:
         Стол
 
         Args:
-            width: ширина стола
             canvas: полотно, на котором отобразится стол
         """
         self.canvas_width = int(canvas["width"])
@@ -118,10 +117,6 @@ class Table:
         pass
 
     @property
-    def width(self):
-        return self.__width
-
-    @property
     def center_mass_position(self):
         return self.__center_mass_position
 
@@ -150,7 +145,7 @@ class App(TkinterApp):
 
         # создание объектов
         self.start_pos_cube = 0
-        self.table = Table(520, self.canvas, self.start_pos_cube)
+        self.table = Table(self.canvas, self.start_pos_cube)
 
         self.cube_len = 90
         self.cube = Cube(self.cube_len)
