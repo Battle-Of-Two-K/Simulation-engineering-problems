@@ -8,8 +8,7 @@ from equation import DiffEqSecKind
 from tkinter_app_pattern import TkinterApp
 
 # Константы:
-PENDULUM_AMPLITUDE = 210  # амплитуда маятника
-START_POSITION_CUBE = 150  # начальное положение куба
+START_POSITION_CUBE = 120  # начальное положение куба
 SPRING_SHAPE = 10, 20  # 10 - кол-во витков, 20 - диаметр
 CUBE_LENGTH = 80  # длина ребра куба
 
@@ -23,9 +22,13 @@ OUTSIDE_CANVAS = -50, -50, -50, -50
 DASH = 4, 2
 CHART_STOP_POINT = 700
 EQUATION_PARAMETERS = (1, 5, 0, (START_POSITION_CUBE, 0))
-CHART_FACTOR = 1
-TIME_FACTOR = 50
+CHART_FACTOR = 2
+TIME_FACTOR = 1250
 
+FORM_RESISTANCE_COEFFICIENT = 1.05  # коэффициент сопротивления формы
+COEFFICIENT_FRICTION = 0.22  # коэффициент трения скольжения
+g = 9.8
+PIXEL_FACTOR = 38
 
 # строчка, позволяет не выводить лишние данные (они нужны только разработчику):
 logging.basicConfig(level=logging.ERROR)
@@ -91,15 +94,15 @@ class App(TkinterApp):
     }
 
     task_data = {}  # данные задачи
-    draw_stop_flag = 1
 
     app_time = 0  # время приложения
     coords_chart = []
 
     chart_factor = CHART_FACTOR
-    time_factor = TIME_FACTOR
 
     def _ready(self):
+        # self.FPS = 100
+
         # Считываем информацию с файла:
         self.read_data_json_file()
 
@@ -139,6 +142,7 @@ class App(TkinterApp):
         self.main_chart_id = self.window_chart.create_line(OUTSIDE_CANVAS, fill='#FFB54F', width=2)
 
         self._phys_flag = False  # не запускать процесс (работу приложения)
+        # print(self.coefficient_friction)
 
     def _draw(self):
         # Отрисовка стола:
@@ -170,14 +174,19 @@ class App(TkinterApp):
                 self._phys_flag = True
             else:
                 self._phys_flag = False
-                self._proc_flag = False
                 self._draw_flag = False
 
     def _physics_process(self, delta):
-        self.equation = DiffEqSecKind(*EQUATION_PARAMETERS)
-        self.equation.create_equation(self.app_time, self.time_factor)
 
-        self.function = self.equation.create_equation(self.app_time, self.time_factor)
+        self.equation = DiffEqSecKind(
+            FORM_RESISTANCE_COEFFICIENT / self.cube_mass,
+            2 * self.spring_coeff_elasticity / self.cube_mass,
+            -COEFFICIENT_FRICTION * g,
+            (START_POSITION_CUBE, 0))
+
+        self.equation.create_equation(self.app_time, TIME_FACTOR)
+
+        self.function = self.equation.create_equation(self.app_time, TIME_FACTOR)
 
         self.animation.delete('left_spring')
         self.animation.delete('right_spring')
@@ -326,8 +335,7 @@ class App(TkinterApp):
         # Приведение положения кубика к начальному состоянию:
         self.table.center_mass_position = START_POSITION_CUBE
 
-        self.draw_stop_flag = 1
-        self._phys_flag = True
+        self._phys_flag = False
         self._draw_flag = True
 
         self.main_chart_id = self.window_chart.create_line(OUTSIDE_CANVAS, fill='#FFB54F', width=2)
@@ -338,7 +346,6 @@ class App(TkinterApp):
         """
         self._phys_flag = True
         self._draw_flag = True
-        self.draw_stop_flag = 1
 
     def button_close_program(self):
         """
@@ -402,6 +409,45 @@ class App(TkinterApp):
                     print(f"   - {step}")
             else:
                 print(f"    {key}: {value}\n")
+
+    @property
+    def cube_mass(self):
+        """
+        Расчёт массы кубика
+        Returns: масса кубика
+        """
+        return 1000 * (self.task_data["Плотность"]["титан"] /
+                       (PIXEL_FACTOR * self.task_data["Входные данные"]["Размер куба"]))
+
+    @property
+    def shear_modulus(self):
+        """
+        Подбор модуля сдвига (зависит от материала пружины)
+        Returns: модуль сдвига
+        """
+        for key, value in self.task_data["Модуль сдвига"].items():
+            if self.task_data["Дополнительные условия"]["Материал пружины"] == key:
+                return value * (10 ** 10)
+
+    @property
+    def spring_coeff_elasticity(self):
+        """
+        Расчёт коэффициента упругости пружины
+        Returns: коэффициент упругости пружины
+        """
+        amount_turns_spring = (PIXEL_FACTOR * self.task_data["Дополнительные условия"]["Длина пружин"] /
+                               PIXEL_FACTOR * self.task_data["Входные данные"]["Шаг витков пружины"]) + 1
+
+        return (self.shear_modulus * PIXEL_FACTOR * self.task_data["Входные данные"]["Диаметр проволоки"] ** 4) / \
+               (8 * (PIXEL_FACTOR * self.task_data["Входные данные"]["Диаметр пружины"] ** 3) * amount_turns_spring)
+
+    @property
+    def coefficient_friction(self):
+        """
+        Расчёт коэффициента трения скольжения
+        Returns: коэффициент трения скольжения
+        """
+        return float(input("Введите коэффициент трения скольжения: "))
 
     @staticmethod
     def _flatten(seq):
