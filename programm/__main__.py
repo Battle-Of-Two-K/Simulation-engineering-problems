@@ -191,15 +191,16 @@ class App(TkinterApp):
             -COEFFICIENT_FRICTION * free_fall_coefficient,
             (self.task_data["Входные данные"]["Отклонение"], 0))
 
-        if isinstance(self.equation.create_equation(self.app_time, TIME_FACTOR), tuple):
-            self.function = self.equation.create_equation(self.app_time, TIME_FACTOR)[0]
-            self.function_two = self.equation.create_equation(self.app_time, TIME_FACTOR)[1]
-            self.function_three = -self.equation.create_equation(self.app_time, TIME_FACTOR)[1]
+        function = self.equation.create_equation(self.app_time, TIME_FACTOR)
+        if isinstance(function, tuple):
+            function = self.equation.create_equation(self.app_time, TIME_FACTOR)[0]
+            function_two = self.equation.create_equation(self.app_time, TIME_FACTOR)[1]
+            function_three = -self.equation.create_equation(self.app_time, TIME_FACTOR)[1]
 
         else:
-            self.function = self.equation.create_equation(self.app_time, TIME_FACTOR)
-            self.function_two = 0
-            self.function_three = 0
+            function = self.equation.create_equation(self.app_time, TIME_FACTOR)
+            function_two = 0
+            function_three = 0
 
         self.animation.delete('left_spring')
         self.animation.delete('right_spring')
@@ -207,13 +208,13 @@ class App(TkinterApp):
         self.animation.delete('cube')
 
         # положение куба:
-        self.table.center_mass_position = self.function
+        self.table.center_mass_position = function
 
         # добавление в список следующей пары координат:
-        self.coords_chart.append(self.chart.convert_coords(self.app_time, self.function, self.chart_factor))
-        self.coords_chart_two.append(self.chart.convert_coords(self.app_time, self.function_two, self.chart_factor))
+        self.coords_chart.append(self.chart.convert_coords(self.app_time, function, self.chart_factor))
+        self.coords_chart_two.append(self.chart.convert_coords(self.app_time, function_two, self.chart_factor))
         self.coords_chart_three.append(
-            self.chart.convert_coords(self.app_time, self.function_three, self.chart_factor))
+            self.chart.convert_coords(self.app_time, function_three, self.chart_factor))
         self.app_time += delta
 
     def information_canvas(self):
@@ -338,6 +339,8 @@ class App(TkinterApp):
 
         # Удаление графика текущего состояния (и осей координат):
         self.window_chart.delete(self.main_chart_id)
+        self.window_chart.delete(self.main_chart_id_two)
+        self.window_chart.delete(self.main_chart_id_three)
 
         # Отрисовка осей:
         self.draw_chart_axes()
@@ -347,6 +350,8 @@ class App(TkinterApp):
 
         # Очистка списка координат:
         self.coords_chart = []
+        self.coords_chart_two = []
+        self.coords_chart_three = []
 
         # Приведение положения кубика к начальному состоянию:
         self.table.center_mass_position = self.task_data["Входные данные"]["Отклонение"]
