@@ -8,7 +8,6 @@ from equation import DiffEqSecKind
 from tkinter_app_pattern import TkinterApp
 
 # Константы:
-START_POSITION_CUBE = 120  # начальное положение куба
 SPRING_SHAPE = 10, 20  # 10 - кол-во витков, 20 - диаметр
 CUBE_LENGTH = 80  # длина ребра куба
 
@@ -19,15 +18,14 @@ PLACE_CHART_WINDOW = 0, 240
 ARROW_SHAPE = 10, 20, 5
 ORDINATE_POSITION = 50
 OUTSIDE_CANVAS = -50, -50, -50, -50
-DASH = 4, 2
+
 CHART_STOP_POINT = 700
-EQUATION_PARAMETERS = (1, 5, 0, (START_POSITION_CUBE, 0))
-CHART_FACTOR = 2
-TIME_FACTOR = 1250
+CHART_FACTOR = 1
+TIME_FACTOR = 50
 
 FORM_RESISTANCE_COEFFICIENT = 1.05  # коэффициент сопротивления формы
 COEFFICIENT_FRICTION = 0.22  # коэффициент трения скольжения
-g = 9.8
+free_fall_coefficient = 9.8
 PIXEL_FACTOR = 38
 
 # строчка, позволяет не выводить лишние данные (они нужны только разработчику):
@@ -97,6 +95,8 @@ class App(TkinterApp):
 
     app_time = 0  # время приложения
     coords_chart = []
+    coords_chart_two = []
+    coords_chart_three = []
 
     chart_factor = CHART_FACTOR
 
@@ -119,7 +119,7 @@ class App(TkinterApp):
         self.animation.place(x=PLACE_WIN_ANIMATION[0], y=PLACE_WIN_ANIMATION[1])
 
         # Создание объектов
-        self.table = Table(self.animation, START_POSITION_CUBE)  # стол
+        self.table = Table(self.animation, self.task_data["Входные данные"]["Отклонение"])  # стол
         self.cube = Cube(CUBE_LENGTH)  # кубик
         self.left_spring = Spring(*SPRING_SHAPE)  # левая пружина
         self.right_spring = Spring(*SPRING_SHAPE)  # правая пружина
@@ -140,6 +140,8 @@ class App(TkinterApp):
         self.information_canvas()  # вывод считанной информации с файла на рамку
 
         self.main_chart_id = self.window_chart.create_line(OUTSIDE_CANVAS, fill='#FFB54F', width=2)
+        self.main_chart_id_two = self.window_chart.create_line(OUTSIDE_CANVAS, fill='#FF6A54', width=1, dash=(4, 2))
+        self.main_chart_id_three = self.window_chart.create_line(OUTSIDE_CANVAS, fill='#FF6A54', width=1, dash=(4, 2))
 
         self._phys_flag = False  # не запускать процесс (работу приложения)
         # print(self.coefficient_friction)
@@ -168,7 +170,12 @@ class App(TkinterApp):
         # Условие начала отрисовки графика:
         if len(self.coords_chart) > 2:
             # Отрисовка графика:
-            self.window_chart.coords(self.main_chart_id, *self._flatten(self.coords_chart))
+            if len(self.coords_chart_two) != 0 and len(self.coords_chart_three) != 0:
+                self.window_chart.coords(self.main_chart_id, *self._flatten(self.coords_chart))
+                self.window_chart.coords(self.main_chart_id_two, *self._flatten(self.coords_chart_two))
+                self.window_chart.coords(self.main_chart_id_three, *self._flatten(self.coords_chart_three))
+            else:
+                self.window_chart.coords(self.main_chart_id, *self._flatten(self.coords_chart))
 
             if self.coords_chart[-1][0] < CHART_STOP_POINT:
                 self._phys_flag = True
@@ -181,12 +188,18 @@ class App(TkinterApp):
         self.equation = DiffEqSecKind(
             FORM_RESISTANCE_COEFFICIENT / self.cube_mass,
             2 * self.spring_coeff_elasticity / self.cube_mass,
-            -COEFFICIENT_FRICTION * g,
-            (START_POSITION_CUBE, 0))
+            -COEFFICIENT_FRICTION * free_fall_coefficient,
+            (self.task_data["Входные данные"]["Отклонение"], 0))
 
-        self.equation.create_equation(self.app_time, TIME_FACTOR)
+        if isinstance(self.equation.create_equation(self.app_time, TIME_FACTOR), tuple):
+            self.function = self.equation.create_equation(self.app_time, TIME_FACTOR)[0]
+            self.function_two = self.equation.create_equation(self.app_time, TIME_FACTOR)[1]
+            self.function_three = -self.equation.create_equation(self.app_time, TIME_FACTOR)[1]
 
-        self.function = self.equation.create_equation(self.app_time, TIME_FACTOR)
+        else:
+            self.function = self.equation.create_equation(self.app_time, TIME_FACTOR)
+            self.function_two = 0
+            self.function_three = 0
 
         self.animation.delete('left_spring')
         self.animation.delete('right_spring')
@@ -198,6 +211,9 @@ class App(TkinterApp):
 
         # добавление в список следующей пары координат:
         self.coords_chart.append(self.chart.convert_coords(self.app_time, self.function, self.chart_factor))
+        self.coords_chart_two.append(self.chart.convert_coords(self.app_time, self.function_two, self.chart_factor))
+        self.coords_chart_three.append(
+            self.chart.convert_coords(self.app_time, self.function_three, self.chart_factor))
         self.app_time += delta
 
     def information_canvas(self):
@@ -333,12 +349,14 @@ class App(TkinterApp):
         self.coords_chart = []
 
         # Приведение положения кубика к начальному состоянию:
-        self.table.center_mass_position = START_POSITION_CUBE
+        self.table.center_mass_position = self.task_data["Входные данные"]["Отклонение"]
 
         self._phys_flag = False
         self._draw_flag = True
 
         self.main_chart_id = self.window_chart.create_line(OUTSIDE_CANVAS, fill='#FFB54F', width=2)
+        self.main_chart_id_two = self.window_chart.create_line(OUTSIDE_CANVAS, fill='#FF6A54', width=1, dash=(2, 4))
+        self.main_chart_id_three = self.window_chart.create_line(OUTSIDE_CANVAS, fill='#FF6A54', width=1, dash=(2, 4))
 
     def button_start_process(self):
         """
@@ -438,7 +456,7 @@ class App(TkinterApp):
         amount_turns_spring = (PIXEL_FACTOR * self.task_data["Дополнительные условия"]["Длина пружин"] /
                                PIXEL_FACTOR * self.task_data["Входные данные"]["Шаг витков пружины"]) + 1
 
-        return (self.shear_modulus * PIXEL_FACTOR * self.task_data["Входные данные"]["Диаметр проволоки"] ** 4) / \
+        return (self.shear_modulus * PIXEL_FACTOR * (self.task_data["Входные данные"]["Диаметр проволоки"] ** 4)) / \
                (8 * (PIXEL_FACTOR * self.task_data["Входные данные"]["Диаметр пружины"] ** 3) * amount_turns_spring)
 
     @property

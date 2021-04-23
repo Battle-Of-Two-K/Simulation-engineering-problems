@@ -38,7 +38,7 @@ class DiffEqSecKind:
             C_1 = self.first_condition - self.particular_solution_equation()
             C_2 = self.second_condition - C_1 * eq_roots[0]
             return (e ** (eq_roots[0] * time / time_factor) * (C_1 + C_2 * time / time_factor)) + \
-                self.particular_solution_equation()
+                   self.particular_solution_equation()
 
         # D < 0:
         elif isinstance(eq_roots[0], complex) or isinstance(eq_roots[1], complex):
@@ -47,7 +47,7 @@ class DiffEqSecKind:
             return (e ** (eq_roots[0].real * time / time_factor)) * \
                    (C_1 * cos(eq_roots[0].imag * time / time_factor) +
                     C_2 * sin(eq_roots[0].imag * time / time_factor)) \
-                + self.particular_solution_equation()
+                + self.particular_solution_equation(), C_1 * e ** (eq_roots[0].real * time / time_factor)
 
         # D > 0:
         else:
@@ -58,7 +58,7 @@ class DiffEqSecKind:
 
             return (C_1 * e ** (eq_roots[0] * time / time_factor) +
                     C_2 * e ** (eq_roots[1] * time / time_factor)) \
-                + self.particular_solution_equation()
+                   + self.particular_solution_equation()
 
     def solve_characteristic_equation(self):
         """
