@@ -46,6 +46,7 @@ def find(name):
 def button_app_style():
     style = ttk.Style()
     style.theme_use('clam')
+
     style.configure('TButton', background='#2B2E35',
                     foreground='#FF6A54', width=10,
                     borderwidth=1, focusthickness=2,
@@ -53,8 +54,19 @@ def button_app_style():
                     focuscolor='#2B2E30',
                     font=('Comic Sans MS', 16, 'italic'))
 
-    style.map('TButton', foreground=[('pressed', 'red'), ('active', '#FF6A54')],
+    style.map('TButton', foreground=[('pressed', 'red'), ('active', '#FCEAC6')],
               background=[('pressed', '!disabled', '#FCEAC6'), ('active', '#4B505C')])
+
+    style.configure('TCombobox', background='#2B2E35',
+                    foreground='#FCEAC6', width=10,
+                    borderwidth=1, focusthickness=2,
+                    relief='sunken',
+                    fieldbackground='#2B2E35',
+                    selectbackground='#2B2E35',
+                    selectforeground='#FCEAC6',
+                    font=('Comic Sans MS', 16, 'italic'))
+
+    style.map('TCombobox', foreground=[('pressed', '#FCEAC6'), ('active', 'black')])
 
 
 class App(TkinterApp):
@@ -276,8 +288,40 @@ class App(TkinterApp):
             x=abscissa, y=height + delta)
 
         for key, value in self.task_data["Дополнительные условия"].items():
-            tk.Label(self.settings_window, text=f'  {key}: {value}', **self.text_param).place(
-                x=abscissa, y=height + 2 * delta)
+            if key == "Материал тела":
+                tk.Label(self.settings_window, text=f'  {key}: ', **self.text_param).place(
+                    x=abscissa, y=height + 2 * delta)
+
+                self.text_var_first = tk.StringVar(self.settings_window)
+                material_box = ttk.Combobox(self.settings_window,
+                                            width=10,
+                                            textvariable=self.text_var_first,
+                                            values=[i for i, j in self.task_data["Плотность"].items()],
+                                            font=('Comic Sans MS', 16, "italic"))
+
+                material_box.place(x=abscissa + 280, y=height + 2 * delta)
+                material_box.current(1)
+                material_box.bind("<<ComboboxSelected>>", self.box_call_first)
+
+            elif key == "Материал пружины":
+                tk.Label(self.settings_window, text=f'  {key}: ', **self.text_param).place(
+                    x=abscissa, y=height + 2 * delta)
+
+                self.text_var_second = tk.StringVar(self.settings_window)
+                material_box = ttk.Combobox(self.settings_window,
+                                            width=10,
+                                            textvariable=self.text_var_second,
+                                            values=[i for i, j in self.task_data["Модуль сдвига"].items()],
+                                            font=('Comic Sans MS', 16, "italic"))
+
+                material_box.place(x=abscissa + 280, y=height + 2 * delta)
+                material_box.current(1)
+                material_box.bind("<<ComboboxSelected>>", self.box_call_second)
+
+            else:
+                tk.Label(self.settings_window, text=f'  {key}: {value}', **self.text_param).place(
+                    x=abscissa, y=height + 2 * delta)
+
             height += delta
 
         return height, delta, abscissa
@@ -321,6 +365,12 @@ class App(TkinterApp):
 
         stop_btn = ttk.Button(self.window_chart, text=f'Stop', command=self.button_stop_process)
         stop_btn.place(x=550, y=424)
+
+    def box_call_first(self, event):
+        self.task_data["Дополнительные условия"]["Материал тела"] = self.text_var_first.get()
+
+    def box_call_second(self, event):
+        self.task_data["Дополнительные условия"]["Материал пружины"] = self.text_var_second.get()
 
     def button_stop_process(self):
         self._phys_flag = False
@@ -439,8 +489,11 @@ class App(TkinterApp):
         Расчёт массы кубика
         Returns: масса кубика
         """
-        return 1000 * (self.task_data["Плотность"]["титан"] /
-                       (PIXEL_FACTOR * self.task_data["Входные данные"]["Размер куба"]))
+
+        for key, value in self.task_data["Плотность"].items():
+            if self.task_data["Дополнительные условия"]["Материал тела"] == key:
+                return 1000 * (value /
+                               (PIXEL_FACTOR * self.task_data["Входные данные"]["Размер куба"]))
 
     @property
     def shear_modulus(self):
