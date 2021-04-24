@@ -6,6 +6,7 @@ import tkinter.ttk as ttk
 from tkinter import filedialog
 from equation import DiffEqSecKind
 from tkinter_app_pattern import TkinterApp
+from math import sin, cos, e
 
 # Константы:
 SPRING_SHAPE = 10, 20  # 10 - кол-во витков, 20 - диаметр
@@ -185,11 +186,13 @@ class App(TkinterApp):
 
     def _physics_process(self, delta):
 
-        self.equation = DiffEqSecKind(
-            FORM_RESISTANCE_COEFFICIENT / self.cube_mass,
-            2 * self.spring_coeff_elasticity / self.cube_mass,
-            -COEFFICIENT_FRICTION * free_fall_coefficient,
-            (self.task_data["Входные данные"]["Отклонение"], 0))
+        # self.equation = DiffEqSecKind(
+        #     FORM_RESISTANCE_COEFFICIENT / self.cube_mass,
+        #     2 * self.spring_coeff_elasticity / self.cube_mass,
+        #     -COEFFICIENT_FRICTION * free_fall_coefficient,
+        #     (self.task_data["Входные данные"]["Отклонение"], 0))
+
+        self.equation = DiffEqSecKind(1, 1, 0, (210, 0))
 
         function = self.equation.create_equation(self.app_time, TIME_FACTOR)
         if isinstance(function, tuple):
@@ -201,6 +204,11 @@ class App(TkinterApp):
             function = self.equation.create_equation(self.app_time, TIME_FACTOR)
             function_two = 0
             function_three = 0
+
+        # amplitude = 100
+        #
+        # function = amplitude * (
+        #         e ** (-0.001 * self.app_time)) * (sin(.4 * self.app_time) + cos(.4 * self.app_time))
 
         self.animation.delete('left_spring')
         self.animation.delete('right_spring')
