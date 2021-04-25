@@ -7,6 +7,7 @@ from tkinter import filedialog
 from equation import DiffEqSecKind
 from tkinter_app_pattern import TkinterApp
 
+
 # Константы:
 SPRING_SHAPE = 10, 20  # 10 - кол-во витков, 20 - диаметр
 CUBE_LENGTH = 80  # длина ребра куба
@@ -110,8 +111,6 @@ class App(TkinterApp):
     coords_chart_two = []
     coords_chart_three = []
 
-    chart_factor = CHART_FACTOR
-
     def _ready(self):
         # self.FPS = 100
 
@@ -197,6 +196,7 @@ class App(TkinterApp):
 
     def _physics_process(self, delta):
 
+        # Уравнение движения (составленное по 2-му з-ну Ньютона):
         self.equation = DiffEqSecKind(
             FORM_RESISTANCE_COEFFICIENT / self.cube_mass,
             2 * self.spring_coeff_elasticity / self.cube_mass,
@@ -223,10 +223,10 @@ class App(TkinterApp):
         self.table.center_mass_position = function
 
         # добавление в список следующей пары координат:
-        self.coords_chart.append(self.chart.convert_coords(self.app_time, function, self.chart_factor))
-        self.coords_chart_two.append(self.chart.convert_coords(self.app_time, function_two, self.chart_factor))
+        self.coords_chart.append(self.chart.convert_coords(self.app_time, function, CHART_FACTOR))
+        self.coords_chart_two.append(self.chart.convert_coords(self.app_time, function_two, CHART_FACTOR))
         self.coords_chart_three.append(
-            self.chart.convert_coords(self.app_time, function_three, self.chart_factor))
+            self.chart.convert_coords(self.app_time, function_three, CHART_FACTOR))
         self.app_time += delta
 
     def information_canvas(self):
@@ -300,7 +300,7 @@ class App(TkinterApp):
                                             font=('Comic Sans MS', 16, "italic"))
 
                 material_box.place(x=abscissa + 280, y=height + 2 * delta)
-                material_box.current(1)
+                material_box.current(0)
                 material_box.bind("<<ComboboxSelected>>", self.box_call_first)
 
             elif key == "Материал пружины":
@@ -315,7 +315,7 @@ class App(TkinterApp):
                                             font=('Comic Sans MS', 16, "italic"))
 
                 material_box.place(x=abscissa + 280, y=height + 2 * delta)
-                material_box.current(1)
+                material_box.current(0)
                 material_box.bind("<<ComboboxSelected>>", self.box_call_second)
 
             else:
@@ -360,17 +360,19 @@ class App(TkinterApp):
         update_btn = ttk.Button(self.settings_window, text=f'Сбросить', command=self.button_update_process)
         update_btn.place(x=7 * delta, y=height + 3.5 * delta)
 
-        start_btn = ttk.Button(self.window_chart, text=f'Start', command=self.button_start_process)
+        start_btn = ttk.Button(self.window_chart, text=f'Начать', command=self.button_start_process)
         start_btn.place(x=380, y=424)
 
-        stop_btn = ttk.Button(self.window_chart, text=f'Stop', command=self.button_stop_process)
+        stop_btn = ttk.Button(self.window_chart, text=f'Пауза', command=self.button_stop_process)
         stop_btn.place(x=550, y=424)
 
     def box_call_first(self, event):
         self.task_data["Дополнительные условия"]["Материал тела"] = self.text_var_first.get()
+        return event
 
     def box_call_second(self, event):
         self.task_data["Дополнительные условия"]["Материал пружины"] = self.text_var_second.get()
+        return event
 
     def button_stop_process(self):
         self._phys_flag = False
