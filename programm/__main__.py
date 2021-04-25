@@ -111,6 +111,8 @@ class App(TkinterApp):
     coords_chart_two = []
     coords_chart_three = []
 
+    start_flag = False
+
     def _ready(self):
         # self.FPS = 100
 
@@ -178,6 +180,11 @@ class App(TkinterApp):
                                         self.animation_opts['height'] // 2 + CUBE_LENGTH // 2,
                                         fill="#FF6A54", tags=("cube",))
 
+        if not self.start_flag:
+            self._draw_flag = False
+        else:
+            self._draw_flag = True
+
         # Условие начала отрисовки графика:
         if len(self.coords_chart) > 2:
             # Отрисовка графика:
@@ -188,11 +195,11 @@ class App(TkinterApp):
             else:
                 self.window_chart.coords(self.main_chart_id, *self._flatten(self.coords_chart))
 
-            if self.coords_chart[-1][0] < CHART_STOP_POINT:
-                self._phys_flag = True
-            else:
-                self._phys_flag = False
-                self._draw_flag = False
+                if self.coords_chart[-1][0] < CHART_STOP_POINT:
+                    self._phys_flag = True
+                else:
+                    self._phys_flag = False
+                    self._draw_flag = False
 
     def _physics_process(self, delta):
 
@@ -415,12 +422,15 @@ class App(TkinterApp):
         self.main_chart_id_two = self.window_chart.create_line(OUTSIDE_CANVAS, fill='#FF6A54', width=1, dash=(2, 4))
         self.main_chart_id_three = self.window_chart.create_line(OUTSIDE_CANVAS, fill='#FF6A54', width=1, dash=(2, 4))
 
+        self.start_flag = False
+
     def button_start_process(self):
         """
         Начать процесс (начать работу приложения)
         """
         self._phys_flag = True
         self._draw_flag = True
+        self.start_flag = True
 
     def button_close_program(self):
         """
