@@ -195,11 +195,11 @@ class App(TkinterApp):
             else:
                 self.window_chart.coords(self.main_chart_id, *self._flatten(self.coords_chart))
 
-                if self.coords_chart[-1][0] < CHART_STOP_POINT:
-                    self._phys_flag = True
-                else:
-                    self._phys_flag = False
-                    self._draw_flag = False
+            if self.coords_chart[-1][0] < CHART_STOP_POINT:
+                self._phys_flag = True
+            else:
+                self._phys_flag = False
+                self._draw_flag = False
 
     def _physics_process(self, delta):
 
