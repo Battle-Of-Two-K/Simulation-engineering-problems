@@ -27,7 +27,7 @@ CHART_FACTOR = 1
 TIME_FACTOR = 50
 
 FORM_RESISTANCE_COEFFICIENT = 1.05  # коэффициент сопротивления формы
-COEFFICIENT_FRICTION = 0.22  # коэффициент трения скольжения
+COEFFICIENT_FRICTION = 0.4  # коэффициент трения скольжения
 free_fall_coefficient = 9.8
 PIXEL_FACTOR = 38
 
@@ -216,6 +216,8 @@ class App(TkinterApp):
             2 * self.spring_coeff_elasticity / self.cube_mass,
             -COEFFICIENT_FRICTION * free_fall_coefficient,
             (self.task_data["Входные данные"]["Отклонение"], 0))
+
+        # print(self.equation._calculate_discriminant())
 
         function = self.equation.create_equation(self.app_time, TIME_FACTOR)
 
@@ -591,8 +593,7 @@ class App(TkinterApp):
 
         for key, value in self.task_data["Плотность"].items():
             if self.task_data["Дополнительные условия"]["Материал тела"] == key:
-                return 1000 * (value /
-                               (PIXEL_FACTOR * self.task_data["Входные данные"]["Размер куба"]))
+                return value * (self.task_data["Входные данные"]["Размер куба"] ** 3) / 1000
 
     @property
     def shear_modulus(self):
