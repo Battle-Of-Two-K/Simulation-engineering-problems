@@ -8,6 +8,7 @@ from tkinter import filedialog
 from equation import DiffEqSecKind
 from tkinter_app_pattern import TkinterApp
 
+
 # Константы:
 SPRING_SHAPE = 10, 20  # 10 - кол-во витков, 20 - диаметр
 CUBE_LENGTH = 80  # длина ребра куба
@@ -287,7 +288,7 @@ class App(TkinterApp):
                  bg='#2B2E35', fg='#FFB54F').place(x=abscissa, y=height)
 
         for key, value in self.task_data["Входные данные"].items():
-            tk.Label(self.settings_window, text=f'  {key}: {value}', **self.text_param).place(
+            tk.Label(self.settings_window, text=f'  {key}: {value} см', **self.text_param).place(
                 x=abscissa, y=height + delta)
             height += delta
 
@@ -541,6 +542,11 @@ class App(TkinterApp):
 
         self.info_text.append(canvas.create_text(coords[0] - CORRECT_COORDS_DATA, coords[1] + delta,
                                                  text="\u03BB =" + f" {self.damping_decrement}",
+                                                 font=self.font_main_params,
+                                                 fill=self.text_param["fg"]))
+
+        self.info_text.append(canvas.create_text(coords[0] - CORRECT_COORDS_DATA, coords[1] + 2 * delta,
+                                                 text="m =" + f" {self.cube_mass} кг",
                                                  font=self.font_main_params,
                                                  fill=self.text_param["fg"]))
 
