@@ -101,10 +101,12 @@ class App(TkinterApp):
     }
 
     text_param = {
-        'font': ('Comic Sans MS', 13, "italic"),
+        'font': ('Comic Sans MS', 15, "italic"),
         'bg': '#2B2E35',
         'fg': '#FCEAC6'
     }
+
+    font_main_params = ('Comic Sans MS', 12, "italic")
 
     task_data = {}  # данные задачи
 
@@ -517,27 +519,27 @@ class App(TkinterApp):
     def output_data(self, canvas: tk.Canvas, coords: tuple, delta):
         self.info_text.append(canvas.create_text(coords,
                                                  text=u"\u03B2 =" + f" {self.damping_factor}",
-                                                 font=self.text_param['font'],
+                                                 font=self.font_main_params,
                                                  fill=self.text_param["fg"]))
 
         self.info_text.append(canvas.create_text(coords[0], coords[1] + delta,
                                                  text="\u03C9_0 =" + f" {self.natural_frequency_ideal_pendulum}",
-                                                 font=self.text_param['font'],
+                                                 font=self.font_main_params,
                                                  fill=self.text_param["fg"]))
 
         self.info_text.append(canvas.create_text(coords[0], coords[1] + 2 * delta,
                                                  text="\u03C9 =" + f" {self.damped_oscillation_frequency}",
-                                                 font=self.text_param['font'],
+                                                 font=self.font_main_params,
                                                  fill=self.text_param["fg"]))
 
         self.info_text.append(canvas.create_text(coords[0] - CORRECT_COORDS_DATA, coords[1],
                                                  text="\u03A4 =" + f" {self.period}",
-                                                 font=self.text_param['font'],
+                                                 font=self.font_main_params,
                                                  fill=self.text_param["fg"]))
 
         self.info_text.append(canvas.create_text(coords[0] - CORRECT_COORDS_DATA, coords[1] + delta,
                                                  text="\u03BB =" + f" {self.damping_decrement}",
-                                                 font=self.text_param['font'],
+                                                 font=self.font_main_params,
                                                  fill=self.text_param["fg"]))
 
     @property
