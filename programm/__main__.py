@@ -1,12 +1,12 @@
 import os
 import json
 import logging
+from math import pi
 from animation import *
 import tkinter.ttk as ttk
 from tkinter import filedialog
 from equation import DiffEqSecKind
 from tkinter_app_pattern import TkinterApp
-
 
 # Константы:
 SPRING_SHAPE = 10, 20  # 10 - кол-во витков, 20 - диаметр
@@ -19,6 +19,7 @@ PLACE_CHART_WINDOW = 0, 240
 ARROW_SHAPE = 10, 20, 5
 ORDINATE_POSITION = 50
 OUTSIDE_CANVAS = -50, -50, -50, -50
+MAIN_PARAMS = (600, 25), 25
 
 CHART_STOP_POINT = 700
 CHART_FACTOR = 1
@@ -99,7 +100,7 @@ class App(TkinterApp):
     }
 
     text_param = {
-        'font': ('Comic Sans MS', 15, "italic"),
+        'font': ('Comic Sans MS', 13, "italic"),
         'bg': '#2B2E35',
         'fg': '#FCEAC6'
     }
@@ -111,10 +112,11 @@ class App(TkinterApp):
     coords_chart_two = []
     coords_chart_three = []
 
+    info_text = []
+
     start_flag = False
 
     def _ready(self):
-        # self.FPS = 100
 
         # Считываем информацию с файла:
         self.read_data_json_file()
@@ -157,6 +159,10 @@ class App(TkinterApp):
         self.main_chart_id_three = self.window_chart.create_line(OUTSIDE_CANVAS, fill='#FF6A54', width=1, dash=(4, 2))
 
         self._phys_flag = False  # не запускать процесс (работу приложения)
+
+        self.output_data(self.window_chart, *MAIN_PARAMS)
+
+        # self.information_console()
         # print(self.coefficient_friction)
 
     def _draw(self):
@@ -375,10 +381,12 @@ class App(TkinterApp):
 
     def box_call_first(self, event):
         self.task_data["Дополнительные условия"]["Материал тела"] = self.text_var_first.get()
+        self.update_main_model_params()
         return event
 
     def box_call_second(self, event):
         self.task_data["Дополнительные условия"]["Материал пружины"] = self.text_var_second.get()
+        self.update_main_model_params()
         return event
 
     def button_stop_process(self):
@@ -414,6 +422,8 @@ class App(TkinterApp):
 
         # Приведение положения кубика к начальному состоянию:
         self.table.center_mass_position = self.task_data["Входные данные"]["Отклонение"]
+
+        self.update_main_model_params()
 
         self._phys_flag = False
         self._draw_flag = True
@@ -494,6 +504,79 @@ class App(TkinterApp):
                     print(f"   - {step}")
             else:
                 print(f"    {key}: {value}\n")
+
+    def update_main_model_params(self):
+        for i in self.info_text:
+            self.window_chart.delete(i)
+        self.info_text = []
+
+        self.output_data(self.window_chart, *MAIN_PARAMS)
+
+    def output_data(self, canvas: tk.Canvas, coords: tuple, delta):
+        self.info_text.append(canvas.create_text(coords,
+                                                 text=u"\u03B2 =" + f" {self.damping_factor}",
+                                                 font=self.text_param['font'],
+                                                 fill="#CB7731"))
+
+        self.info_text.append(canvas.create_text(coords[0], coords[1] + delta,
+                                                 text="\u03C9_0 =" + f" {self.natural_frequency_ideal_pendulum}",
+                                                 font=self.text_param['font'],
+                                                 fill="#CB7731"))
+
+        self.info_text.append(canvas.create_text(coords[0], coords[1] + 2 * delta,
+                                                 text="\u03C9 =" + f" {self.damped_oscillation_frequency}",
+                                                 font=self.text_param['font'],
+                                                 fill="#CB7731"))
+
+        self.info_text.append(canvas.create_text(coords[0], coords[1] + 3 * delta,
+                                                 text="\u03A4 =" + f" {self.period}",
+                                                 font=self.text_param['font'],
+                                                 fill="#CB7731"))
+
+        self.info_text.append(canvas.create_text(coords[0], coords[1] + 4 * delta,
+                                                 text="\u03BB =" + f" {self.damping_decrement}",
+                                                 font=self.text_param['font'],
+                                                 fill="#CB7731"))
+
+    @property
+    def damping_factor(self):
+        """
+        Расчёт коэффициента затухания
+        Returns: коэффициент затухания
+        """
+        return FORM_RESISTANCE_COEFFICIENT / (2 * self.cube_mass)
+
+    @property
+    def natural_frequency_ideal_pendulum(self):
+        """
+        Расчёт частоты собственных колебаний идеального маятника
+        Returns: частота собственных колебаний идеального маятника
+        """
+        return (self.spring_coeff_elasticity / self.cube_mass) ** .5
+
+    @property
+    def damped_oscillation_frequency(self):
+        """
+        Расчёт частоты затухающих колебаний
+        Returns: частота затухающих колебаний
+        """
+        return (self.natural_frequency_ideal_pendulum ** 2 - self.damping_factor ** 2) ** .5
+
+    @property
+    def period(self):
+        """
+        Расчёт периода затухающих колебаний
+        Returns: период затухающих колебаний
+        """
+        return 2 * pi / self.damped_oscillation_frequency
+
+    @property
+    def damping_decrement(self):
+        """
+        Расчёт логарифмического декремента затухания
+        Returns: период затухающих колебаний
+        """
+        return self.period * self.damping_factor
 
     @property
     def cube_mass(self):
