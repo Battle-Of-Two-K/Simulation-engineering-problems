@@ -307,7 +307,12 @@ class App(TkinterApp):
             x=abscissa, y=height + delta)
 
         for key, value in self.task_data["Дополнительные условия"].items():
-            if key == "Материал тела":
+
+            if key == "Длина пружин":
+                tk.Label(self.settings_window, text=f'  {key}: {value} см', **self.text_param).place(
+                    x=abscissa, y=height + 2 * delta)
+
+            elif key == "Материал тела":
                 tk.Label(self.settings_window, text=f'  {key}: ', **self.text_param).place(
                     x=abscissa, y=height + 2 * delta)
 
