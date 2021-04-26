@@ -20,6 +20,7 @@ ARROW_SHAPE = 10, 20, 5
 ORDINATE_POSITION = 50
 OUTSIDE_CANVAS = -50, -50, -50, -50
 MAIN_PARAMS = (600, 25), 25
+CORRECT_COORDS_DATA = 220
 
 CHART_STOP_POINT = 700
 CHART_FACTOR = 1
@@ -162,9 +163,6 @@ class App(TkinterApp):
 
         self.output_data(self.window_chart, *MAIN_PARAMS)
 
-        # self.information_console()
-        # print(self.coefficient_friction)
-
     def _draw(self):
         # Отрисовка стола:
         self.animation.create_line(*self.table.generate_table_coords(), fill='#FCEAC6', width=2, tags=("table",))
@@ -201,6 +199,7 @@ class App(TkinterApp):
             else:
                 self.window_chart.coords(self.main_chart_id, *self._flatten(self.coords_chart))
 
+            # Условие остановки графика:
             if self.coords_chart[-1][0] < CHART_STOP_POINT:
                 self._phys_flag = True
             else:
@@ -217,6 +216,8 @@ class App(TkinterApp):
             (self.task_data["Входные данные"]["Отклонение"], 0))
 
         function = self.equation.create_equation(self.app_time, TIME_FACTOR)
+
+        # Условие прорисовки вспомогательных (красных) линий при затухающих колебаниях:
         if isinstance(function, tuple):
             function = self.equation.create_equation(self.app_time, TIME_FACTOR)[0]
             function_two = self.equation.create_equation(self.app_time, TIME_FACTOR)[1]
@@ -423,6 +424,7 @@ class App(TkinterApp):
         # Приведение положения кубика к начальному состоянию:
         self.table.center_mass_position = self.task_data["Входные данные"]["Отклонение"]
 
+        # Обновление основных параметров маятника:
         self.update_main_model_params()
 
         self._phys_flag = False
@@ -516,27 +518,27 @@ class App(TkinterApp):
         self.info_text.append(canvas.create_text(coords,
                                                  text=u"\u03B2 =" + f" {self.damping_factor}",
                                                  font=self.text_param['font'],
-                                                 fill="#CB7731"))
+                                                 fill=self.text_param["fg"]))
 
         self.info_text.append(canvas.create_text(coords[0], coords[1] + delta,
                                                  text="\u03C9_0 =" + f" {self.natural_frequency_ideal_pendulum}",
                                                  font=self.text_param['font'],
-                                                 fill="#CB7731"))
+                                                 fill=self.text_param["fg"]))
 
         self.info_text.append(canvas.create_text(coords[0], coords[1] + 2 * delta,
                                                  text="\u03C9 =" + f" {self.damped_oscillation_frequency}",
                                                  font=self.text_param['font'],
-                                                 fill="#CB7731"))
+                                                 fill=self.text_param["fg"]))
 
-        self.info_text.append(canvas.create_text(coords[0], coords[1] + 3 * delta,
+        self.info_text.append(canvas.create_text(coords[0] - CORRECT_COORDS_DATA, coords[1],
                                                  text="\u03A4 =" + f" {self.period}",
                                                  font=self.text_param['font'],
-                                                 fill="#CB7731"))
+                                                 fill=self.text_param["fg"]))
 
-        self.info_text.append(canvas.create_text(coords[0], coords[1] + 4 * delta,
+        self.info_text.append(canvas.create_text(coords[0] - CORRECT_COORDS_DATA, coords[1] + delta,
                                                  text="\u03BB =" + f" {self.damping_decrement}",
                                                  font=self.text_param['font'],
-                                                 fill="#CB7731"))
+                                                 fill=self.text_param["fg"]))
 
     @property
     def damping_factor(self):
