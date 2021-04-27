@@ -20,15 +20,16 @@ PLACE_CHART_WINDOW = 0, 240
 ARROW_SHAPE = 10, 20, 5
 ORDINATE_POSITION = 50
 OUTSIDE_CANVAS = -50, -50, -50, -50
-MAIN_PARAMS = (600, 25), 25
-CORRECT_COORDS_DATA = 220
+MAIN_PARAMS = (650, 25), 25
+CORRECT_COORDS_DATA = 150
+DIGIT_CAPACITY = 6
 
 CHART_STOP_POINT = 700
 CHART_FACTOR = 1
 TIME_FACTOR = 50
 
 FORM_RESISTANCE_COEFFICIENT = 1.05  # коэффициент сопротивления формы
-COEFFICIENT_FRICTION = 0.4  # коэффициент трения скольжения
+COEFFICIENT_FRICTION = 0.22  # коэффициент трения скольжения
 free_fall_coefficient = 9.8
 PIXEL_FACTOR = 38
 
@@ -524,34 +525,44 @@ class App(TkinterApp):
 
         self.output_data(self.window_chart, *MAIN_PARAMS)
 
+    @staticmethod
+    def control_round(obj):
+        if isinstance(obj, complex):
+            return complex(round(obj.real, DIGIT_CAPACITY), round(obj.imag, DIGIT_CAPACITY))
+        else:
+            return round(obj, DIGIT_CAPACITY)
+
     def output_data(self, canvas: tk.Canvas, coords: tuple, delta):
         self.info_text.append(canvas.create_text(coords,
-                                                 text=u"\u03B2 =" + f" {self.damping_factor}",
+                                                 text=u"\u03B2 =" + f" {self.control_round(self.damping_factor)}",
                                                  font=self.font_main_params,
                                                  fill=self.text_param["fg"]))
 
-        self.info_text.append(canvas.create_text(coords[0], coords[1] + delta,
-                                                 text="\u03C9_0 =" + f" {self.natural_frequency_ideal_pendulum}",
-                                                 font=self.font_main_params,
-                                                 fill=self.text_param["fg"]))
+        self.info_text.append(canvas.create_text(
+            coords[0], coords[1] + delta,
+            text="\u03C9_0 =" + f" {self.control_round(self.natural_frequency_ideal_pendulum)}",
+            font=self.font_main_params,
+            fill=self.text_param["fg"]))
 
-        self.info_text.append(canvas.create_text(coords[0], coords[1] + 2 * delta,
-                                                 text="\u03C9 =" + f" {self.damped_oscillation_frequency}",
-                                                 font=self.font_main_params,
-                                                 fill=self.text_param["fg"]))
+        self.info_text.append(canvas.create_text(
+            coords[0], coords[1] + 2 * delta,
+            text="\u03C9 =" + f" {self.control_round(self.damped_oscillation_frequency)}",
+            font=self.font_main_params,
+            fill=self.text_param["fg"]))
 
-        self.info_text.append(canvas.create_text(coords[0] - CORRECT_COORDS_DATA, coords[1],
-                                                 text="\u03A4 =" + f" {self.period}",
-                                                 font=self.font_main_params,
-                                                 fill=self.text_param["fg"]))
+        self.info_text.append(canvas.create_text(
+            coords[0] - CORRECT_COORDS_DATA, coords[1],
+            text="\u03A4 =" + f" {self.control_round(self.period)}",
+            font=self.font_main_params,
+            fill=self.text_param["fg"]))
 
         self.info_text.append(canvas.create_text(coords[0] - CORRECT_COORDS_DATA, coords[1] + delta,
-                                                 text="\u03BB =" + f" {self.damping_decrement}",
+                                                 text="\u03BB =" + f" {self.control_round(self.damping_decrement)}",
                                                  font=self.font_main_params,
                                                  fill=self.text_param["fg"]))
 
         self.info_text.append(canvas.create_text(coords[0] - CORRECT_COORDS_DATA, coords[1] + 2 * delta,
-                                                 text="m =" + f" {self.cube_mass} кг",
+                                                 text="m =" + f" {self.control_round(self.cube_mass)} кг",
                                                  font=self.font_main_params,
                                                  fill=self.text_param["fg"]))
 
