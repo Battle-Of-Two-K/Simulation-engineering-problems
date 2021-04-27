@@ -22,7 +22,7 @@ ORDINATE_POSITION = 50
 OUTSIDE_CANVAS = -50, -50, -50, -50
 MAIN_PARAMS = (650, 25), 25
 CORRECT_COORDS_DATA = 150
-DIGIT_CAPACITY = 6
+DIGIT_CAPACITY = 6  # кол-во знаков после точки
 
 CHART_STOP_POINT = 700
 CHART_FACTOR = 1
@@ -30,8 +30,7 @@ TIME_FACTOR = 50
 
 FORM_RESISTANCE_COEFFICIENT = 1.05  # коэффициент сопротивления формы
 COEFFICIENT_FRICTION = 0.22  # коэффициент трения скольжения
-free_fall_coefficient = 9.8
-PIXEL_FACTOR = 38
+free_fall_coefficient = 9.8  # ускорение свободного падения
 
 # строчка, позволяет не выводить лишние данные (они нужны только разработчику):
 logging.basicConfig(level=logging.ERROR)
@@ -633,11 +632,11 @@ class App(TkinterApp):
         Расчёт коэффициента упругости пружины
         Returns: коэффициент упругости пружины
         """
-        amount_turns_spring = (PIXEL_FACTOR * self.task_data["Дополнительные условия"]["Длина пружин"] /
-                               PIXEL_FACTOR * self.task_data["Входные данные"]["Шаг витков пружины"]) + 1
+        amount_turns_spring = ((self.task_data["Дополнительные условия"]["Длина пружин"]) /
+                               (self.task_data["Входные данные"]["Шаг витков пружины"])) + 1
 
-        return (self.shear_modulus * PIXEL_FACTOR * (self.task_data["Входные данные"]["Диаметр проволоки"] ** 4)) / \
-               (8 * (PIXEL_FACTOR * self.task_data["Входные данные"]["Диаметр пружины"] ** 3) * amount_turns_spring)
+        return (self.shear_modulus * (self.task_data["Входные данные"]["Диаметр проволоки"] ** 4)) / \
+               (8 * (self.task_data["Входные данные"]["Диаметр пружины"] ** 3) * amount_turns_spring)
 
     @property
     def coefficient_friction(self):
