@@ -129,6 +129,11 @@ class App(TkinterApp):
         self.root.title("Лабораторная работа по МИЗу. Подготовил: Коновалов Ф.Д., группа М1О-302С")
         self.root.resizable(width=False, height=False)  # неизменный размер окна
 
+        self.root.bind("<Control-s>", self.button_start_process)
+        self.root.bind("<Control-p>", self.button_stop_process)
+        self.root.bind("<Control-u>", self.button_update_process)
+        self.root.bind("<Control-e>", self.button_close_program)
+
         # Рамка с информацией о задаче:
         self.settings_window = tk.Frame(self.root, **self.settings_window_opts)
         self.settings_window.place(x=PLACE_SET_WINDOW[0], y=PLACE_SET_WINDOW[1])
@@ -400,12 +405,14 @@ class App(TkinterApp):
         self.update_main_model_params()
         return event
 
-    def button_stop_process(self):
+    def button_stop_process(self, event):
         self._phys_flag = False
         self._proc_flag = False
         self._draw_flag = False
 
-    def button_update_process(self):
+        return event
+
+    def button_update_process(self, event):
         """
         Сброс текущего состояния приложения
         """
@@ -446,19 +453,24 @@ class App(TkinterApp):
 
         self.start_flag = False
 
-    def button_start_process(self):
+        return event
+
+    def button_start_process(self, event):
         """
         Начать процесс (начать работу приложения)
         """
         self._phys_flag = True
         self._draw_flag = True
         self.start_flag = True
+        return event
 
-    def button_close_program(self):
+    def button_close_program(self, event):
         """
         Закрыть приложение
         """
         self.root.destroy()
+
+        return event
 
     def draw_chart_axes(self):
         """
