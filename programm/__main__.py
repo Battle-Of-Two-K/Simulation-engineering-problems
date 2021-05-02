@@ -226,7 +226,7 @@ class App(TkinterApp):
 
         self.information_canvas()  # вывод считанной информации с файла на рамку
 
-        self.main_chart_id = self.window_chart.create_polygon(OUTSIDE_CANVAS, fill='#899D82', width=2)
+        self.main_chart_id = self.window_chart.create_line(OUTSIDE_CANVAS, fill='#FFB54F', width=2)
         self.main_chart_id_two = self.window_chart.create_line(OUTSIDE_CANVAS, fill='#FF6A54', width=1, dash=(4, 2))
         self.main_chart_id_three = self.window_chart.create_line(OUTSIDE_CANVAS, fill='#FF6A54', width=1, dash=(4, 2))
 
