@@ -73,6 +73,69 @@ def button_app_style():
     style.map('TCombobox', foreground=[('pressed', '#FCEAC6'), ('active', 'black')])
 
 
+class CreateToolTip(object):
+    """
+    create a tooltip for a given widget
+    """
+    def __init__(self, widget, text='widget info'):
+        self.waittime = 500
+        self.wraplength = 180  # pixels
+
+        self.widget = widget
+        self.text = text
+
+        self.widget.bind("<Enter>", self.enter)
+        self.widget.bind("<Leave>", self.leave)
+        self.widget.bind("<ButtonPress>", self.leave)
+
+        self.id = None
+        self.tw = None
+
+    def enter(self, event=None):
+        self.schedule()
+        return event
+
+    def leave(self, event=None):
+        self.unschedule()
+        self.hidetip()
+        return event
+
+    def schedule(self):
+        self.unschedule()
+        self.id = self.widget.after(self.waittime, self.showtip)
+
+    def unschedule(self):
+        _id = self.id
+        self.id = None
+        if _id:
+            self.widget.after_cancel(_id)
+
+    def showtip(self, event=None):
+        x, y, cx, cy = self.widget.bbox("insert")
+        x += self.widget.winfo_rootx() + 30
+        y += self.widget.winfo_rooty() - 30
+
+        # creates a toplevel window
+        self.tw = tk.Toplevel(self.widget)
+
+        # Leaves only the label and removes the app window
+        self.tw.wm_overrideredirect(True)
+        self.tw.wm_geometry("+%d+%d" % (x, y))
+
+        label = tk.Label(self.tw, text=self.text, justify='left',
+                         background="#ffffff", relief='solid', borderwidth=1,
+                         wraplength=self.wraplength)
+        label.pack(ipadx=1)
+
+        return event
+
+    def hidetip(self):
+        tw = self.tw
+        self.tw = None
+        if tw:
+            tw.destroy()
+
+
 class App(TkinterApp):
     FRAME_COLOR = '#FCEAC6'
     chart_opts = {
@@ -385,15 +448,23 @@ class App(TkinterApp):
 
         exit_btn = ttk.Button(self.settings_window, text=f'Выход', command=self.button_close_program)
         exit_btn.place(x=2 * delta, y=height + 3.5 * delta)
+        CreateToolTip(exit_btn, "Exit (Ctrl + e)\n"
+                                "Выйти из приложения")
 
         update_btn = ttk.Button(self.settings_window, text=f'Сбросить', command=self.button_update_process)
         update_btn.place(x=7 * delta, y=height + 3.5 * delta)
+        CreateToolTip(update_btn, "Update (Ctrl + u)\n"
+                                  "Обновить процесс")
 
         start_btn = ttk.Button(self.window_chart, text=f'Начать', command=self.button_start_process)
         start_btn.place(x=380, y=424)
+        CreateToolTip(start_btn, "Start (Ctrl + s)\n"
+                                 "Запустить модель")
 
         stop_btn = ttk.Button(self.window_chart, text=f'Пауза', command=self.button_stop_process)
         stop_btn.place(x=550, y=424)
+        CreateToolTip(stop_btn, "Pause (Ctrl + p)\n"
+                                "Остановить процесс")
 
     def box_call_first(self, event):
         self.task_data["Дополнительные условия"]["Материал тела"] = self.text_var_first.get()
@@ -405,14 +476,14 @@ class App(TkinterApp):
         self.update_main_model_params()
         return event
 
-    def button_stop_process(self, event):
+    def button_stop_process(self, event=None):
         self._phys_flag = False
         self._proc_flag = False
         self._draw_flag = False
 
         return event
 
-    def button_update_process(self, event):
+    def button_update_process(self, event=None):
         """
         Сброс текущего состояния приложения
         """
@@ -455,21 +526,21 @@ class App(TkinterApp):
 
         return event
 
-    def button_start_process(self, event):
+    def button_start_process(self, event=None):
         """
         Начать процесс (начать работу приложения)
         """
         self._phys_flag = True
         self._draw_flag = True
         self.start_flag = True
+
         return event
 
-    def button_close_program(self, event):
+    def button_close_program(self, event=None):
         """
         Закрыть приложение
         """
         self.root.destroy()
-
         return event
 
     def draw_chart_axes(self):
