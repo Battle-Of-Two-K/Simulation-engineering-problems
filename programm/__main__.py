@@ -51,7 +51,7 @@ def button_app_style():
     style = ttk.Style()
     style.theme_use('clam')
 
-    style.configure('TButton', background='#2B2E35',
+    style.configure('TButton', background='#141519',
                     foreground='#FF6A54', width=10,
                     borderwidth=1, focusthickness=2,
                     relief='sunken',
@@ -61,12 +61,12 @@ def button_app_style():
     style.map('TButton', foreground=[('pressed', 'red'), ('active', '#FCEAC6')],
               background=[('pressed', '!disabled', '#FCEAC6'), ('active', '#4B505C')])
 
-    style.configure('TCombobox', background='#2B2E35',
+    style.configure('TCombobox', background='#141519',
                     foreground='#FCEAC6', width=10,
                     borderwidth=1, focusthickness=2,
                     relief='sunken',
-                    fieldbackground='#2B2E35',
-                    selectbackground='#2B2E35',
+                    fieldbackground='#141519',
+                    selectbackground='#141519',
                     selectforeground='#FCEAC6',
                     font=('Comic Sans MS', 16, 'italic'))
 
@@ -141,7 +141,7 @@ class App(TkinterApp):
     chart_opts = {
         'width': 720,
         'height': 480,
-        'bg': '#2B2E35',
+        'bg': '#141519',
         'highlightbackground': FRAME_COLOR,
         'highlightcolor': FRAME_COLOR
     }
@@ -149,7 +149,7 @@ class App(TkinterApp):
     animation_opts = {
         'width': 720,
         'height': 240,
-        'bg': '#2B2E35',
+        'bg': '#141519',
         'highlightbackground': FRAME_COLOR,
         'highlightcolor': FRAME_COLOR
     }
@@ -157,7 +157,7 @@ class App(TkinterApp):
     settings_window_opts = {
         'width': 462,
         'height': 724,
-        'bg': '#2B2E35',
+        'bg': '#141519',
         'highlightbackground': FRAME_COLOR,
         'highlightcolor': FRAME_COLOR,
         'highlightthickness': 2
@@ -166,7 +166,7 @@ class App(TkinterApp):
 
     text_param = {
         'font': ('Comic Sans MS', 15, "italic"),
-        'bg': '#2B2E35',
+        'bg': '#141519',
         'fg': '#FCEAC6'
     }
 
@@ -226,7 +226,7 @@ class App(TkinterApp):
 
         self.information_canvas()  # вывод считанной информации с файла на рамку
 
-        self.main_chart_id = self.window_chart.create_line(OUTSIDE_CANVAS, fill='#FFB54F', width=2)
+        self.main_chart_id = self.window_chart.create_polygon(OUTSIDE_CANVAS, fill='#899D82', width=2)
         self.main_chart_id_two = self.window_chart.create_line(OUTSIDE_CANVAS, fill='#FF6A54', width=1, dash=(4, 2))
         self.main_chart_id_three = self.window_chart.create_line(OUTSIDE_CANVAS, fill='#FF6A54', width=1, dash=(4, 2))
 
@@ -330,7 +330,7 @@ class App(TkinterApp):
 
         # Заголовок:
         tk.Label(self.settings_window, text='Задача №2. Вариант 59', font=('Comic Sans MS', 18, "bold"),
-                 bg='#2B2E35', fg='#5188BA').place(x=80, y=10)
+                 bg='#141519', fg='#5188BA').place(x=80, y=10)
 
         # Первый блок данных:
         height, delta, abscissa = self.print_input_data(height, delta, abscissa)
@@ -353,7 +353,7 @@ class App(TkinterApp):
             abscissa: величина, влияющая на расположение данных на окне
         """
         tk.Label(self.settings_window, text="1.Входные данные:", font=('Comic Sans MS', 16, "bold"),
-                 bg='#2B2E35', fg='#FFB54F').place(x=abscissa, y=height)
+                 bg='#141519', fg='#FFB54F').place(x=abscissa, y=height)
 
         for key, value in self.task_data["Входные данные"].items():
             tk.Label(self.settings_window, text=f'  {key}: {value} см', **self.text_param).place(
@@ -371,7 +371,7 @@ class App(TkinterApp):
             abscissa: величина, влияющая на расположение данных на окне
         """
         tk.Label(self.settings_window, text="2.Дополнительные условия:", font=('Comic Sans MS', 16, "bold"),
-                 bg='#2B2E35', fg='#FFB54F').place(
+                 bg='#141519', fg='#FFB54F').place(
             x=abscissa, y=height + delta)
 
         for key, value in self.task_data["Дополнительные условия"].items():
@@ -427,7 +427,7 @@ class App(TkinterApp):
             abscissa: величина, влияющая на расположение данных на окне
         """
         tk.Label(self.settings_window, text="3.Особые условия:", font=('Comic Sans MS', 16, "bold"),
-                 bg='#2B2E35', fg='#FFB54F').place(
+                 bg='#141519', fg='#FFB54F').place(
             x=abscissa, y=height + 2 * delta)
 
         for key in self.task_data["Особые условия"]:
