@@ -456,10 +456,10 @@ class App(TkinterApp):
         CreateToolTip(update_btn, "Update (Ctrl + u)\n"
                                   "Обновить процесс")
 
-        start_btn = ttk.Button(self.window_chart, text=f'Начать', command=self.button_start_process)
-        start_btn.place(x=380, y=424)
-        CreateToolTip(start_btn, "Start (Ctrl + s)\n"
-                                 "Запустить модель")
+        self.start_btn = ttk.Button(self.window_chart, text=f'Начать', command=self.button_start_process)
+        self.start_btn.place(x=380, y=424)
+        CreateToolTip(self.start_btn, "Start (Ctrl + s)\n"
+                                      "Запустить модель")
 
         stop_btn = ttk.Button(self.window_chart, text=f'Пауза', command=self.button_stop_process)
         stop_btn.place(x=550, y=424)
@@ -487,6 +487,7 @@ class App(TkinterApp):
         """
         Сброс текущего состояния приложения
         """
+        self.start_btn.configure(text="Начать")
         # Удаление объектов текущего состояния с анимации:
         self.animation.delete('left_spring')
         self.animation.delete('right_spring')
@@ -530,6 +531,7 @@ class App(TkinterApp):
         """
         Начать процесс (начать работу приложения)
         """
+        self.start_btn.configure(text="Продолжить")
         self._phys_flag = True
         self._draw_flag = True
         self.start_flag = True
